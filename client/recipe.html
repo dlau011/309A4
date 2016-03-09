@@ -10,14 +10,16 @@
     <!--Logo icon for tab-->
     <link rel="icon" href="../client/favicon.ico">
 
-    <title>Cookbook</title>
+    <title>Spaghetti Carbonara</title>
 
     <!-- Bootstrap core CSS -->
     <!--May need to change link again-->
     <link href="../client/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../client/css/font-awesome.css" rel="stylesheet">
+    <link href="../client/css/bootstrap-social.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="jumbotron.css" rel="stylesheet">
+    <link href="recipe.css" rel="stylesheet">
   </head>
 
   <body>
@@ -31,7 +33,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a a href="../client/index.html" class="pull-left"><img src="../client/img/logo.png"></a>
+          <a a href="#" class="pull-left"><img src="../client/img/logo.png"></a>
         </div>
         <!--Navbar Components Start Here-->
         <div id="navbar" class="navbar-collapse collapse">
@@ -59,45 +61,84 @@
     </nav>
 
     <div class="container">
-      <div id="nav-pills" class="row">
-        <ul class="nav nav-pills">
-          <li role="presentation" class="active"><a href="#">Most Popular</a></li>
-          <li role="presentation"><a href="#">Subscriptions</a></li>
-        </ul>
+      <div id="header" class="row">
+        <h3>Spaghetti Carbonara</h3>
+        <p>by <a href="">chefd00d</a></p>
       </div>
-    </div>
+    </div> <!-- /container -->
 
-    <!-- If time permits, make into slideslow -->
     <div class="container">
       <div class="jumbotron">
-        <h3>Daily Featured Recipes:</h3>
-        <p><a href="">Strawberry Salmon Salad</a></p>
       </div>
     </div>
 
     <div class="container">
-      <div id="most-popular" class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-2">
-          <h4>Most Popular</h4>
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div id="ingredients" class="col-md-3">
+          <h3>Ingredients</h3>
+          <ul>
+            <li> 1 pound spaghetti </li>
+            <li> tablespoon olive oil </li>
+            <li>8 slices bacon, diced </li>
+            <li> 1 tablespoon olive oil </li>
+            <li> 1 onion, chopped </li>
+            <li>1 clove garlic, minced </li>
+            <li> 1/4 cup dry white wine (optional) </li>
+            <li> 4 eggs 1/2 cup grated Parmesan cheese </li>
+            <li> 1 pinch salt and black pepper to taste </li>
+            <li> 2 tablespoons chopped fresh parsley </li>
+            <li> 2 tablespoons grated Parmesan cheese </li>
+          </ul>
         </div>
-        <div class="col-md-2">
-          <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-              today
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dLabel">
-              <li><a href="#">this week</a></li>
-              <li><a href="#">this month</a></li>
-              <li><a href="#">this year</a></li>
-              <li><a href="#">all time</a></li>
-            </ul>
-          </div>
+        <div id="ratings" class="col-md-3">
+          <h4>
+              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+              <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+              <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+              3.7 (213 users)
+          </h4>
+          <h4>
+              <span class="glyphicon glyphicon-time" aria-hidden="true"></span> 30 minutes
+          </h4>
+          <h4>Serves 4 to 6</h4>
         </div>
-        <div class="col-md-4"></div>
+        <div class="col-md-3"></div>
+      </div> <!-- /row -->
+      <div id="directions" class="row">
+        <h3>Directions:</h3>
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+          <p>In a large pot of boiling salted water, cook spaghetti pasta until al dente. Drain well. Toss with 1 tablespoon of olive oil, and set aside.</p>
+          <img src="../client/img/cooked-bacon.jpg" class="img-responsive">
+          <p>Meanwhile in a large skillet, cook chopped bacon until slightly crisp; remove and drain onto paper towels. Reserve 2 tablespoons of bacon fat; add remaining 1 tablespoon olive oil, and heat in reused large skillet. Add chopped onion, and cook over medium heat until onion is translucent. Add minced garlic, and cook 1 minute more. Add wine if desired; cook one more minute.</p>
+          <img src="../client/img/spaghetti-pan.jpg" class="img-responsive">
+          <p>Return cooked bacon to pan; add cooked and drained spaghetti. Toss to coat and heat through, adding more olive oil if it seems dry or is sticking together. Add beaten eggs and cook, tossing constantly with tongs or large fork until eggs are barely set. Quickly add 1/2 cup Parmesan cheese, and toss again. Add salt and pepper to taste (remember that bacon and Parmesan are very salty).</p>
+          <img src="../client/img/parsley.jpg" class="img-responsive">
+          <p>Serve immediately with chopped parsley sprinkled on top, and extra Parmesan cheese at table.</p>
+        </div>
+        <div class="col-md-3"></div>
+      </div>
+      <div id="end" class="row">
+        <div id="comments" class="col-md-6">
+          <a href="#">Comments <span class="badge">15</span></a>
+        </div>
+        <div class="col-md-6">
+          <h5>Share this recipe:</h5>
+          <a class="btn btn-social-icon btn-facebook"><span class="fa fa-facebook"></span></a>
+          <a class="btn btn-social-icon btn-twitter"><span class="fa fa-twitter"></span></a>
+          <a class="btn btn-social-icon btn-pinterest"><span class="fa fa-pinterest"></span></a>
+        </div>
       </div>
       <div class="row">
+        <div id="end-title" class="col-md-6">
+          <h3>Related Recipes:</h3>
+        </div>
+        <div class="col-md-6"></div>
+      </div>
+      <div id="related" class="row">
         <div class="col-sm-6 col-md-3">
           <div class="thumbnail">
             <img src="../client/img/okonomiyaki.jpg" alt="..." class="img-rounded">
@@ -167,13 +208,7 @@
           </div>
         </div>
       </div>
-
-      <hr>
-
-      <footer>
-      </footer>
-    </div> <!-- /container -->
-
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -182,4 +217,4 @@
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="../client/js/bootstrap.min.js"></script>
   </body>
-</html>
+  </html>
