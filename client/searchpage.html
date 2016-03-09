@@ -10,7 +10,13 @@
     <!--Logo icon for tab-->
     <link rel="icon" href="../client/favicon.ico">
 
-    <title>Spaghetti Carbonara</title>
+    <title>Search Results</title>
+
+    <!-- Jquery -->
+    <script src="js/jquery-1.12.1.min.js"></script>
+
+    <!-- Dummy search script -->
+    <script src="js/search-mockup.js"></script>
 
     <!-- Bootstrap core CSS -->
     <!--May need to change link again-->
@@ -34,12 +40,12 @@
         <!--Navbar Components Start Here-->
         <div id="navbar" class="navbar-collapse collapse">
           <!--Search-->
-          <form class="navbar-form navbar-left" role="search">
+          <div class="navbar-form navbar-left">
             <div class="form-group">
-              <input type="text" class="form-control" placeholder="Spaghetti Carbonara">
+              <input id="search-input" type="text" class="form-control" placeholder="Spaghetti Carbonara">
             </div>
-            <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-          </form>
+            <button id="search-button" class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+          </div>
           <!--Browse-->
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#">Browse</a></li>
@@ -92,7 +98,7 @@
       </div> 
 
       <div class="row">
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-3" id="search-food-1">
           <div class="thumbnail">
             <img src="../client/img/okonomiyaki.jpg" alt="..." class="img-rounded">
             <div class="caption">
@@ -109,7 +115,7 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-3" id="search-food-2">
           <div class="thumbnail">
             <img src="../client/img/taco.jpg" alt="...">
             <div class="caption">
@@ -126,7 +132,7 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-3" id="search-food-3">
           <div class="thumbnail">
             <img src="../client/img/ratatouille.jpg" alt="...">
             <div class="caption">
@@ -143,7 +149,7 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-3" id="search-food-4">
           <div class="thumbnail">
             <img src="../client/img/carbonara.jpg" alt="...">
             <div class="caption">
