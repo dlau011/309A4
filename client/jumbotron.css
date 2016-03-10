@@ -46,8 +46,13 @@ body {
     justify-content: center;
 }
 
-.nav-pills li.active a {
+.nav-pills li.active a, .nav-pills li.active a:hover {
 	background-color: #e57100;
+}
+
+.nav-pills li.active a:active {
+	background-color: #e57100;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
 }
 
 .nav-pills li>a {

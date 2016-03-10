@@ -12,13 +12,13 @@ body {
 	text-align: center;
 }
 
-#directions img, p {
+#directions img, #directions p {
 	padding: 10px;
 }
 
 #end {
 	padding: 10px;
-	text-align: center;
+	text-align: left;
 }
 
 #end-title h3 {
@@ -99,4 +99,30 @@ h3 {
 
 #related {
 	padding: 10px;
+}
+
+.thumbnail {
+	box-shadow: 0 0 2px 1px #f2f2f2;
+	border: solid 1px #e6e6e6;
+	border-radius: 0px;
+}
+
+.thumbnail #user {
+	text-align: center;
+}
+
+.thumbnail h4 {
+	color: #01a912;
+	margin-top: 0px;
+	text-align: center;
+}
+
+.thumbnail img {
+	max-width: 100%;
+	max-height: 100%;
+	padding: 5px;
+}
+
+.thumbnail p {
+	text-align: center;
 }
