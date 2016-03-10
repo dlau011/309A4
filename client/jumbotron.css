@@ -10,7 +10,7 @@ body {
 }
 
 .jumbotron {
-	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url("../client/img/sushi-salad.jpg");
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url("img/sushi-salad.jpg");
 	background-size: cover;
 	margin-bottom: 0px;
 }
