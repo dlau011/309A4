@@ -6,6 +6,9 @@
 /* --CONFIG----------------------------------------- */
 const PORT = 24200;
 const MONGODB_PORT = 27017;
+
+const DEFAULT_USER_BIO = "No bio yet.";
+const DEFAULT_USER_PROFILE_IMAGE = "";
 /* ------------------------------------------------- */
 
 // Init: ---------------------------------------------------------
@@ -36,7 +39,24 @@ db.once('open', function() {
                Make sure to hash the password on the frontend before you send it.
 */
 app.post('/authenticate_user', function (req, res) {
-  // TODO (Hunter)
+    try {
+        User.findOne({username: req.body.username}, function (err, user) {
+            try {
+                if (err){
+                    res.send(makeErrorJSON("User does not exist."))
+                } else if (user.hashed_password != req.body.hashed_password){
+                    res.send(makeErrorJSON("Incorrect password."))
+                } else {
+                    var login_idJSON = {"login_id": user.login_id};
+                    res.send(JSON.stringify(login_idJSON));
+                }
+            } catch (err){
+                res.send(makeErrorJSON("User does not exist."))      
+            }
+        });
+    } catch (err){
+        res.send(makeErrorJSON(err))
+    }
 });
 
 /*
@@ -44,8 +64,23 @@ app.post('/authenticate_user', function (req, res) {
     --> Input: login_id
     --> Return: username
 */
-app.post('/get_loggged_in_username', function (req, res) {
-  // TODO (Hunter)
+app.post('/get_logged_in_username', function (req, res) {
+    try {
+        User.findOne({login_id: req.body.login_id}, function (err, user) {
+            try {
+                if (err){
+                    res.send(makeErrorJSON("User does not exist."))
+                } else {
+                    var usernameJSON = {"username": user.username};
+                    res.send(JSON.stringify(usernameJSON));
+                }
+            } catch (err){
+                res.send(makeErrorJSON("User does not exist."))      
+            }
+        });
+    } catch (err){
+        res.send(makeErrorJSON(err))
+    }
 });
 
 /*
@@ -53,7 +88,54 @@ app.post('/get_loggged_in_username', function (req, res) {
     --> Return: a login_id on success, or a string with an appropriate error message on failure (eg. "Username already taken").
 */
 app.post('/create_user', function (req, res) {
-  // TODO (Hunter)
+    try {
+        if (req.body.username != undefined && req.body.hashed_password != undefined
+            && req.body.full_name != undefined){
+
+            // Check to see if username exists:
+            var userExists = false;
+            User.findOne({username: req.body.username}, function (err, user) {
+                try {
+                    if (!err && user.username.length > 0){
+                        userExists = true;
+                        res.send(makeErrorJSON("Username has been taken."))               
+                    }
+                } catch (err) {/* pass */}
+            });
+            if (userExists){ return; }
+
+            // Create a new user:
+
+            var bio = DEFAULT_USER_BIO;
+            var profile_image = DEFAULT_USER_PROFILE_IMAGE;
+            if ("bio" in req.body){ bio = req.body.bio; }
+            if ("profile_image" in req.body){ profile_image = req.body.profile_image; }
+
+            var newUserJSON = {
+                login_id: generateLoginID(),
+                username: req.body.username,
+                hashed_password: req.body.hashed_password,
+                bio: bio,
+                profile_image: profile_image,
+                full_name: req.body.full_name,
+                subscribers: [],
+                subscriptions: []
+            };
+
+            var newUser = new User(newUserJSON);
+            newUser.save(function(err){
+                if (err){ console.log("MongoDB error saving user: " + err); }
+            });
+
+            var login_idJSON = {"login_id": newUser.login_id};
+            res.send(JSON.stringify(login_idJSON));
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."))   
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err)) 
+    }
 });
 
 /*
@@ -188,10 +270,27 @@ app.listen(PORT, function () {
 
 // Internal functions: -------------------------------------------
 
+/*
+    Return the username associated with login_id, or an error if one does not exist.
+*/
 function getUsernameByLoginID(login_id){
   // TODO (Hunter)
 }
 
+/*
+    Return a stringified JSON of err.
+*/
+function makeErrorJSON(err){
+    var errorJSON = {"error": err};
+    return JSON.stringify(errorJSON);
+}
+
+/*
+    Generate a new unique login_id and return it.
+*/
+function generateLoginID(){
+    return "" + Date.now() + "-" + Math.floor((Math.random() * 1000000) + 1);
+}
 
 // Database schema: ----------------------------------------------
 
