@@ -98,14 +98,19 @@ app.post('/create_user', function (req, res) {
                         if ("profile_image" in req.body){ profile_image = req.body.profile_image; }
 
                         var newUserJSON = {
-                            login_id: generateLoginID(),
+                            login_id: generateID(),
                             username: req.body.username,
                             hashed_password: req.body.hashed_password,
                             bio: bio,
                             profile_image: profile_image,
                             full_name: req.body.full_name,
                             subscribers: [],
-                            subscriptions: []
+                            subscriptions: [],
+                            avg_rating: 0,
+                            num_ratings: 0,
+                            tags_by_usage: [],
+                            fav_recipes: [],
+                            authored_recipes: []
                         };
 
                         var newUser = new User(newUserJSON);
@@ -134,7 +139,7 @@ app.post('/create_user', function (req, res) {
 
 /*
     --> Input: login_id, new_bio
-    --> Return: True on success, false otherwise
+    --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/change_bio', function (req, res) {
   // TODO (Becky)
@@ -143,7 +148,7 @@ app.post('/change_bio', function (req, res) {
 /*
     Checks to make sure old_hashed_password matches the stored password for the user, then changes it.
     --> Input: login_id, old_hashed_password, new_hashed_password
-    --> Return: True on success, false otherwise
+    --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/change_password', function (req, res) {
   // TODO (Becky)
@@ -151,23 +156,23 @@ app.post('/change_password', function (req, res) {
 
 /*
     --> Input: login_id, new_image
-    --> Return: True on success, false otherwise
+    --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/change_profile_image', function (req, res) {
   // TODO (Becky)
 });
 
 /*
-    Retrieves a user profile for the current user if login_id is specified, or for username if not.
+    Retrieve a user profile either by username or by login_id (for the currently logged in user).
         subscribed_to is a list of usernames that this user is subscribed to.
         number_of_subscribers is how many users are subscribed to this user.
         most_used_tags is a list of tags
-        favourite_recipes is a list of recipe_id
+        favourite_recipes and authored_recipes are a list of recipe_id
         rating is the average rating of all their dishes.
 
-    --> Input: username, (optional) login_id
+    --> Input: (optional) username, (optional) login_id
     --> Return: {username, full_name, profile_image, bio, rating, number_of_subscribers, [subscribed_to], [most_used_tags],
-               [favourite_recipes]}
+               [favourite_recipes], [authored_recipes]}
 */
 app.post('/get_user_profile', function (req, res) {
     try {
@@ -175,15 +180,16 @@ app.post('/get_user_profile', function (req, res) {
         if ("login_id" in req.body){ // Get current user's profile.
             User.findOne({login_id: req.body.login_id}, function (err, user) {
                 try {
-                    getProfileByUsernameCallback(user.username)
+                    getProfileByUsernameCallback(user.username, res)
                 } catch (err){
                     res.send(makeErrorJSON("User does not exist."));    
                 }
             });
-        } else { // Get username's profile.
-            getProfileByUsernameCallback(req.body.username);
-        }        
-
+        } else if ("username" in req.body){ // Get username's profile.
+            getProfileByUsernameCallback(req.body.username, res);
+        } else {
+            res.send(makeErrorJSON("No username or login_id specified."));
+        }
     } catch (err){
         res.send(makeErrorJSON(err));
     }
@@ -194,7 +200,7 @@ app.post('/get_user_profile', function (req, res) {
     Adds that user to the current user's list of subscriptions, and adds the current user to
     the other user's list of subscribers.
     --> Input: login_id, username
-    --> Return True on success, False otherwise.
+    --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/subscribe_to', function (req, res) {
   // TODO (Becky)
@@ -238,28 +244,98 @@ app.post('/get_recipe_detail', function (req, res) {
 /*
     Adds a comment to recipe_id. 
         --> Input: recipe_id, login_id, comment_text
-        --> Return: True on success, False otherwise.
+        --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/add_comment', function (req, res) {
   // TODO (Becky)
 });
 
 /*
-    Add a recipe with the info below, pass the users login_id.
+    Add a recipe by the user with login_id.
     Note that recipe_text can have html formatting (including images if they're hosted elsewhere).
 
     --> Input: recipe_name, login_id, prep_time, serving_size, [tags], recipe_text
-    --> Return: True on success, False otherwise.
+    --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/add_recipe', function (req, res) {
-  // TODO (Hunter)
+    try {
+        if (req.body.recipe_name != undefined && req.body.login_id != undefined
+            && req.body.prep_time != undefined && req.body.serving_size != undefined
+            && req.body.tags != undefined && req.body.tags instanceof Array && req.body.recipe_text != undefined){
+
+            // Lookup the user's username from login_id:
+            try {
+                User.findOne({login_id: req.body.login_id}, function (err, user) {
+                    try {
+
+                        var newRecipeID = generateID();
+
+                        // Create a new recipe:
+                        var newRecipeJSON = {
+                            unix_time_added: Date.now(),
+                            recipe_id: newRecipeID,
+                            recipe_name: req.body.recipe_name,
+                            author_username: user.username,
+                            recipe_text: req.body.recipe_text,
+                            rating: 0,
+                            num_ratings: 0,
+                            prep_time: req.body.prep_time,
+                            serving_size: req.body.serving_size,
+                            tags: req.body.tags,
+                            comments: []
+                        };
+
+                        var newRecipe = new Recipe(newRecipeJSON);
+                        newRecipe.save(function(err){
+                            if (err){ console.log("MongoDB error saving recipe: " + err); }
+                        });
+
+                        // Add this to the user's list of authored recipes:
+                        user.authored_recipes.push(newRecipeID);
+
+                        // Update user's tags_by_usage data structure:
+                        for (var i = 0; i < req.body.tags.length; i++){
+                            var broke = false;
+                            for (var j = 0; j < user.tags_by_usage.length; j++){
+                                if (req.body.tags[i] == user.tags_by_usage[j].tag){
+                                    user.tags_by_usage[j].times_used++;
+                                    broke = true;
+                                    break;
+                                }
+                            }
+                            if (!broke){
+                                user.tags_by_usage.push({"tag": req.body.tags[i], "times_used": 1});
+                            }
+                        }
+
+                        user.save(function(err){
+                            if (err){ res.send(makeErrorJSON(err)); }
+                        });
+
+                        res.send(makeSuccessJSON());
+
+                    } catch (err){
+                        console.log(err);
+                        res.send(makeErrorJSON("User does not exist."));    
+                    }
+                });
+            } catch (err){
+                res.send(makeErrorJSON(err));
+            }
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."));
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
 });
 
 /*
     rating is an integer from 1-5
     If the user rates a recipe 5 stars, it will show up on their favourite_recipes as returned by /get_user_profile
     --> Input: recipe_id, rating
-    --> Return: True on success, False otherwise.
+    --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/rate_recipe', function (req, res) {
   // TODO (Hunter)
@@ -289,9 +365,17 @@ function makeErrorJSON(err){
 }
 
 /*
-    Generate a new unique login_id and return it.
+    Return a stringified success JSON.
 */
-function generateLoginID(){
+function makeSuccessJSON(){
+    var successJSON = {"success": true};
+    return JSON.stringify(successJSON);
+}
+
+/*
+    Generate a new unique id and return it. Can be used for login_id or recipe_id.
+*/
+function generateID(){
     return "" + Date.now() + "-" + Math.floor((Math.random() * 1000000) + 1);
 }
 
@@ -299,28 +383,38 @@ function generateLoginID(){
     Async helper for /get_user_profile. This function does the hard work and 
     retrieves the actual profile by username.
 */
-function getProfileByUsernameCallback(username){
+function getProfileByUsernameCallback(username, res){
     try {
         User.findOne({username: username}, function (err, user) {
             try {
 
-                var rating; // TODO average rating of all their dishes.
-                var mostUsedTags; // TODO list of 10? tags the user has used the most.
-                var favRecipes; // TODO list of recipes user has rated 5 stars.
+                // Compute most used tags:
+                console.log(user.tags_by_usage)
+                var tagsCopy = user.tags_by_usage.slice();
+                tagsCopy.sort(function(a, b){
+                    return a.times_used - b.times_used;
+                });
+                mostUsedTags = []
+                for (var i = 0; i < Math.min(10, tagsCopy.length); i++){
+                    mostUsedTags.push(tagsCopy[i].tag);
+                }
+                mostUsedTags.reverse();
 
                 var userProfileJSON = {
                     username: user.username,
                     full_name: user.full_name,
                     profile_image: user.profile_image,
                     bio: user.bio,
-                    rating: rating,
+                    rating: user.avg_rating,
                     number_of_subscribers: user.subscribers.length,
                     subscribed_to: user.subscriptions,
                     most_used_tags: mostUsedTags,
-                    favourite_recipes: favRecipes 
+                    favourite_recipes: user.fav_recipes,
+                    authored_recipes: user.authored_recipes
                 };
 
                 res.send(JSON.stringify(userProfileJSON));
+
             } catch (err){
                 res.send(makeErrorJSON("User does not exist."));    
             }
@@ -339,8 +433,16 @@ var userSchema = mongoose.Schema({
     "bio": String,
     "profile_image": String,
     "full_name": String,
-    "subscribers": [String],
-    "subscriptions": [String]
+    "authored_recipes": [String],   // List of recipe_id
+    "subscribers": [String],    // List of username
+    "subscriptions": [String],  // List of username
+
+    "avg_rating": Number,   // Every time someone rates a dish by this user, update these.
+    "num_ratings": Number,  // 
+
+    "tags_by_usage": [{"tag": String, "times_used": Number}], // When user adds a dish, update this.
+
+    "fav_recipes": [String]  // Add recipe_id to this list whenever a user rates a recipe 5 stars.
 });
 var User = mongoose.model('User', userSchema);
 
