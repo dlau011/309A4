@@ -79,7 +79,7 @@ app.post('/get_logged_in_username', function (req, res) {
 
 /*
     --> Input: username, hashed_password, full_name, (optional) bio, (optional) profile_image
-    --> Return: a login_id on success, or a string with an appropriate error message on failure (eg. "Username already taken").
+    --> Return: a login_id on success, or an error on failure.
 */
 app.post('/create_user', function (req, res) {
     try {
@@ -115,7 +115,7 @@ app.post('/create_user', function (req, res) {
 
                         var newUser = new User(newUserJSON);
                         newUser.save(function(err){
-                            if (err){ console.log("MongoDB error saving user: " + err); }
+                            if (err){ res.send(makeErrorJSON(err)); }
                         });
 
                         var login_idJSON = {"login_id": newUser.login_id};
@@ -222,7 +222,42 @@ app.post('/subscribe_to', function (req, res) {
         --> Return: an array of {recipe_id, recipe_name, author_username, rating, prep_time, image}
 */
 app.post('/get_recipes', function (req, res) {
-  // TODO (Hunter)
+    try {
+        if (req.body.sort_type != undefined && req.body.number_of_recipes != undefined
+            && req.body.page_number != undefined){
+
+            var searchQuery = "";
+            var searchTags = [];
+            var byUsername = "";
+
+            if ("search_query" in req.body){
+                searchQuery = req.body.search_query;
+            }
+            if ("search_tags" in req.body){
+                searchTags = req.body.search_tags;
+            }
+            if ("recipes_by_username" in req.body){
+                byUsername = req.body.recipes_by_username;
+            }
+
+            if ("similar_recipe" in req.body){
+                // TODO: Append this recipes tags to search_tags.
+            }
+            if ("login_id" in req.body){
+                // TODO: For each recipe in this user's favourites, append their tags to search_tags
+            }
+
+            // TODO: Query the db for recipes restricted to the above queries.
+            //       shouldn't be restricted if a query is empty.
+            //       Return the right number of elements at the right slice in the list.
+            //       Sort according to sort type. For popular sort by views. and restrict to within that time period.
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."));
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
 });
 
 /*
@@ -232,13 +267,55 @@ app.post('/get_recipes', function (req, res) {
 
         --> Input: recipe_id
         --> Return: {recipe_id, recipe_name, author_username, rating, num_ratings, prep_time, serving_size,
-                     [tags], recipe_text, [comments]}
+                     [tags], recipe_text, [comments], views}
 
             Notes: recipe_text should support html, so make sure to use $('...').html(...) to set it on the
                    frontend instead of $('...').text(...), this will allow it to have embedded images and formatting.
 */
 app.post('/get_recipe_detail', function (req, res) {
-  // TODO (Hunter)
+    try {
+        if (req.body.recipe_id != undefined){
+
+            // Lookup the recipe:
+            try {
+                Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe) {
+                    try {
+
+                        var recipeJSON = {
+                            recipe_id: req.body.recipe_id,
+                            recipe_name: recipe.name,
+                            author_username: recipe.author_username,
+                            rating: recipe.rating,
+                            num_ratings: recipe.num_ratings,
+                            prep_time: recipe.prep_time,
+                            serving_size: recipe.serving_size,
+                            tags: recipe.tags,
+                            recipe_text: recipe.recipe_text,
+                            comments: recipe.comments,
+                            views: recipe.views
+                        };
+
+                        recipe.views++;
+                        recipe.save(function(err){
+                            if (err){ res.send(makeErrorJSON(err)); }
+                        });
+
+                        res.send(JSON.stringify(recipeJSON));
+
+                    } catch (err){
+                        res.send(makeErrorJSON("Recipe does not exist."));    
+                    }
+                });
+            } catch (err){
+                res.send(makeErrorJSON(err));
+            }
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."));   
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
 });
 
 /*
@@ -255,7 +332,7 @@ app.post('/add_comment', function (req, res) {
     Note that recipe_text can have html formatting (including images if they're hosted elsewhere).
 
     --> Input: recipe_name, login_id, prep_time, serving_size, [tags], recipe_text
-    --> Return: {"success": True} on success, or an error on failure.
+    --> Return: recipe_id on success, or an error on failure.
 */
 app.post('/add_recipe', function (req, res) {
     try {
@@ -282,12 +359,13 @@ app.post('/add_recipe', function (req, res) {
                             prep_time: req.body.prep_time,
                             serving_size: req.body.serving_size,
                             tags: req.body.tags,
-                            comments: []
+                            comments: [],
+                            views: 1
                         };
 
                         var newRecipe = new Recipe(newRecipeJSON);
                         newRecipe.save(function(err){
-                            if (err){ console.log("MongoDB error saving recipe: " + err); }
+                            if (err){ res.send(makeErrorJSON(err)); }
                         });
 
                         // Add this to the user's list of authored recipes:
@@ -312,10 +390,10 @@ app.post('/add_recipe', function (req, res) {
                             if (err){ res.send(makeErrorJSON(err)); }
                         });
 
-                        res.send(makeSuccessJSON());
+                        var recipe_idJSON = {"recipe_id": newRecipeID};
+                        res.send(JSON.stringify(recipe_idJSON));
 
                     } catch (err){
-                        console.log(err);
                         res.send(makeErrorJSON("User does not exist."));    
                     }
                 });
@@ -334,18 +412,78 @@ app.post('/add_recipe', function (req, res) {
 /*
     rating is an integer from 1-5
     If the user rates a recipe 5 stars, it will show up on their favourite_recipes as returned by /get_user_profile
-    --> Input: recipe_id, rating
+    Send the current user's login_id, the recipe_id of the recipe to rate, and the rating: an integer from 1-5.
+    --> Input: recipe_id, rating, login_id
     --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/rate_recipe', function (req, res) {
-  // TODO (Hunter)
+    try {
+        if (req.body.recipe_id != undefined && req.body.rating != undefined
+            && req.body.login_id != undefined){
+
+            // Lookup the recipe:
+            try {
+                Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe) {
+                    try {
+
+                        // Lookup the user:
+                        try {
+                            User.findOne({user_id: req.body.user_id}, function (err, user) {
+                                try {
+
+                                    newRating = recipe.rating * recipe.num_ratings;
+                                    newRating = newRating + req.body.rating;
+                                    recipe.num_ratings++;
+                                    recipe.rating = newRating / recipe.num_ratings;
+
+                                    if (req.body.rating == 5){
+                                        user.fav_recipes.push(req.body.recipe_id);
+                                    }
+
+                                    user.save(function(err){
+                                        if (err){ res.send(makeErrorJSON(err)); }
+                                    });
+
+                                    recipe.save(function(err){
+                                        if (err){ res.send(makeErrorJSON(err)); }
+                                    });
+
+                                    res.send(makeSuccessJSON());
+
+                                } catch (err){
+                                    res.send(makeErrorJSON("User does not exist."));    
+                                }
+                            });
+                        } catch (err){
+                            res.send(makeErrorJSON(err));
+                        }
+
+                    } catch (err){
+                        res.send(makeErrorJSON("Recipe does not exist."));    
+                    }
+                });
+            } catch (err){
+                res.send(makeErrorJSON(err));
+            }
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."));   
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
 });
 
 /*
     This is a GET request, it kills the db.
 */
 app.get('/clear_database', function (req, res) {
-  // TODO (Hunter)
+    try {
+        mongoose.connection.db.dropDatabase();
+        res.send(makeSuccessJSON());
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
 });
 
 // Start the server:
@@ -457,6 +595,7 @@ var recipeSchema = mongoose.Schema({
     "prep_time": String,
     "serving_size": String,
     "tags": [String],
+    "views": Number,
     "comments": [{"author_username": String, "comment_text": String}]
 });
 var Recipe = mongoose.model('Recipe', recipeSchema);
