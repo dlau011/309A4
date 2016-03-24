@@ -207,19 +207,29 @@ app.post('/subscribe_to', function (req, res) {
 });
 
 /*
-    Returns an array of recipes to display from a search query, similar recipe, or just a sort function.
-    login_id, search_query, search_tags, recipes_by_username, and similar_recipe are all optional.
-        search_tags is an array of tags to filter by.
-        similar_recipe is a recipe_id to filter results to be similar to.
-        recipes_by_username will filter results to recipes by a certain username.
-            - Use this field to get recipes to display on user profiles.
-        login_id is the current users login_id, optionally send this to get personalized suggestions.
-    number_of_recipes is how many recipes to get, and page number is what slice of the array.
-    sort_type is one of "MOST_RECENT", "POPULAR_TODAY", "POPULAR_WEEK", "POPULAR_MONTH", "POPULAR_YEAR", "POPULAR_ALL_TIME"
+    This is the main recipe searching/sorting/suggesting function.
+    It returns an array of recipes to display from a search query, similar recipe, tags, by a user, 
+    personalized suggestion, or just the most recent/popular.
 
-        --> Input: sort_type, (optional) search_query, (optional) [search_tags], (optional) similar_recipe,
-                 (optional) recipes_by_username, (optional) login_id, number_of_recipes, page_number
-        --> Return: an array of {recipe_id, recipe_name, author_username, rating, prep_time, image}
+    It will return a basic list of the newest or most popular recipes if the optional args are left out.
+    You can include any combination of the optional args including all of them at once.
+
+    - login_id, search_query, search_tags, recipes_by_username, and similar_recipe are all optional:
+        - search_tags is an array of tags to filter by.
+        - similar_recipe is a recipe_id to filter results to be similar to.
+        - recipes_by_username will filter results to recipes by a certain username.
+            - Use this field to get recipes to display on user profiles.
+        - login_id is the current user's login_id, optionally send this to get personalized suggestions.
+        - search_query is a string to get recipes matching.
+
+    - number_of_recipes is how many recipes to get, and page number is what slice of the array.
+        - page_number is 1 for the first page (not 0!), number_of_recipes is how many recipes per page.
+    - sort_type is one of "MOST_RECENT", "POPULAR_TODAY", "POPULAR_WEEK", "POPULAR_MONTH", "POPULAR_YEAR", or "POPULAR_ALL_TIME".
+
+        --> Input: sort_type,  number_of_recipes, page_number, 
+                   (optional) search_query, (optional) [search_tags], (optional) similar_recipe,
+                   (optional) recipes_by_username, (optional) login_id
+        --> Return: an array of {recipe_id, recipe_name, author_username, rating, prep_time, main_image}
 */
 app.post('/get_recipes', function (req, res) {
     try {
@@ -229,6 +239,10 @@ app.post('/get_recipes', function (req, res) {
             var searchQuery = "";
             var searchTags = [];
             var byUsername = "";
+            var similarRecipes = [];
+            var originalSimilarRecipeID = ""; // Used to prevent a recipe from showing
+                                              // as similar to itself.
+            var loginID;
 
             if ("search_query" in req.body){
                 searchQuery = req.body.search_query;
@@ -239,18 +253,147 @@ app.post('/get_recipes', function (req, res) {
             if ("recipes_by_username" in req.body){
                 byUsername = req.body.recipes_by_username;
             }
-
             if ("similar_recipe" in req.body){
-                // TODO: Append this recipes tags to search_tags.
+                similarRecipes = [req.body.similar_recipe];
+                originalSimilarRecipeID = req.body.similar_recipe;
             }
             if ("login_id" in req.body){
-                // TODO: For each recipe in this user's favourites, append their tags to search_tags
+                loginID = req.body.login_id;
             }
 
-            // TODO: Query the db for recipes restricted to the above queries.
-            //       shouldn't be restricted if a query is empty.
-            //       Return the right number of elements at the right slice in the list.
-            //       Sort according to sort type. For popular sort by views. and restrict to within that time period.
+            /*
+                Helper function, find all recipes in user specified by loginID's favourites.
+                All other args get passed along through the call chain.
+            */
+            function getUserFavsAsync(searchQuery, searchTags, byUsername, listOfRecipeID, loginID, req, res){
+                try {
+                    if (loginID){
+                        User.findOne({login_id: loginID}, function (err, user){
+                            // Call the next function:
+                            getRecipeTagsAsync(searchQuery, searchTags, byUsername, listOfRecipeID.concat(user.fav_recipes), req, res);    
+                        });
+                    } else { // LoginID not specified.
+                        // Call the next function:
+                        getRecipeTagsAsync(searchQuery, searchTags, byUsername, listOfRecipeID, req, res);
+                    }
+                } catch (err){
+                    res.send(makeErrorJSON(err));
+                }
+            }
+
+            /*
+                Helper function. find all tags in recipes in recipeID list.
+                All other args get passed along through the call chain.
+            */
+            function getRecipeTagsAsync(searchQuery, searchTags, byUsername, listOfRecipeID, req, res){
+                try {
+                    Recipe.find({ recipe_id: { $in: listOfRecipeID }}, function(err, recipes){
+
+                        var tags = [];
+                        for (var i = 0; i < recipes.length; i++){
+                            for (var j = 0; j < recipes[i].tags.length; j++){
+                                if (tags.indexOf(recipes[i].tags[j]) == -1){
+                                    tags.push(recipes[i].tags[j]);
+                                }
+                            }
+                        }
+
+                        // Call the next function:
+                        getFilteredRecipes(searchQuery, searchTags.concat(tags), byUsername, req, res);
+
+                    });
+                } catch (err){
+                    res.send(makeErrorJSON(err));
+                }
+            }
+
+            /*
+                Helper function. Send the final list of recipes filtered accordingly.
+            */
+            function getFilteredRecipes(searchQuery, searchTags, byUsername, req, res){
+                try {
+
+                    // Build the query:
+                    var query = {};
+                    if (searchQuery){
+                        // Find where recipe_name contains searchQuery.
+                        query.recipe_name = { $regex: searchQuery, $options: "i" };
+                    }
+                    if (searchTags.length > 0){
+                        // Find where tags contains at least one of searchTags.
+                        query.tags = { $in: searchTags };
+                    }
+                    if (byUsername){
+                        query.author_username = byUsername;
+                    }
+                    if (req.body.sort_type == "POPULAR_TODAY"){
+                        var yesterday = Date.now() - (24 * 60 * 60 * 1000);
+                        query.unix_time_added = { $gt: yesterday };
+                    }
+                    if (req.body.sort_type == "POPULAR_WEEK"){
+                        var lastWeek = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                        query.unix_time_added = { $gt: lastWeek };
+                    }
+                    if (req.body.sort_type == "POPULAR_MONTH"){
+                        var lastMonth = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                        query.unix_time_added = { $gt: lastMonth };
+                    }
+                    if (req.body.sort_type == "POPULAR_YEAR"){
+                        var lastYear = Date.now() - (365 * 24 * 60 * 60 * 1000);
+                        query.unix_time_added = { $gt: lastYear };
+                    }
+
+                    // Build the sort:
+                    var sort = "";
+                    var invalid = false;
+                    if (req.body.sort_type == "MOST_RECENT"){
+                        sort = "-unix_time_added";
+                    } else if (req.body.sort_type == "POPULAR_TODAY" || 
+                               req.body.sort_type == "POPULAR_WEEK" ||
+                               req.body.sort_type == "POPULAR_MONTH" ||
+                               req.body.sort_type == "POPULAR_YEAR" ||
+                               req.body.sort_type == "POPULAR_ALL_TIME"){
+                        sort = "-views";
+                    } else {
+                        invalid = true;
+                        res.send(makeErrorJSON("Invalid sort type."))
+                    }
+
+                    // Build skip amount:
+                    var skipAmount = (req.body.page_number - 1) * req.body.number_of_recipes;
+                    if (skipAmount < 0){
+                        invalid = true;
+                        res.send(makeErrorJSON("Invalid page number or number of recipes."));
+                    }
+
+                    if (!invalid){
+                        // Make the query and send back only appropriate info:
+                        Recipe.find(query).sort(sort).skip(skipAmount).limit(req.body.number_of_recipes)
+                            .exec(function(err, recipes){
+                                var recipesToReturn = [];
+                                for (var i = 0; i < recipes.length; i++){
+                                    if (recipes[i].recipe_id != originalSimilarRecipeID){
+                                        recipesToReturn.push({
+                                            recipe_id: recipes[i].recipe_id,
+                                            recipe_name: recipes[i].recipe_name,
+                                            author_username: recipes[i].author_username,
+                                            rating: recipes[i].rating,
+                                            prep_time: recipes[i].prep_time,
+                                            main_image: recipes[i].main_image
+                                        });
+                                    }
+                                }
+                                res.send(JSON.stringify(recipesToReturn));
+                            });
+                    }
+
+                } catch (err){
+                    res.send()
+                }
+            }
+
+            // Waterfall:
+            getUserFavsAsync(searchQuery, searchTags, byUsername, similarRecipes, loginID, req, res);
 
         } else {
             res.send(makeErrorJSON("Invalid request."));
@@ -266,7 +409,7 @@ app.post('/get_recipes', function (req, res) {
     comments is a list of {author_username, comment_text}
 
         --> Input: recipe_id
-        --> Return: {recipe_id, recipe_name, author_username, rating, num_ratings, prep_time, serving_size,
+        --> Return: {recipe_id, recipe_name, author_username, main_image, rating, num_ratings, prep_time, serving_size,
                      [tags], recipe_text, [comments], views}
 
             Notes: recipe_text should support html, so make sure to use $('...').html(...) to set it on the
@@ -285,6 +428,7 @@ app.post('/get_recipe_detail', function (req, res) {
                             recipe_id: req.body.recipe_id,
                             recipe_name: recipe.name,
                             author_username: recipe.author_username,
+                            main_image: recipe.main_image,
                             rating: recipe.rating,
                             num_ratings: recipe.num_ratings,
                             prep_time: recipe.prep_time,
@@ -331,14 +475,15 @@ app.post('/add_comment', function (req, res) {
     Add a recipe by the user with login_id.
     Note that recipe_text can have html formatting (including images if they're hosted elsewhere).
 
-    --> Input: recipe_name, login_id, prep_time, serving_size, [tags], recipe_text
+    --> Input: recipe_name, login_id, prep_time, serving_size, [tags], recipe_text, main_image
     --> Return: recipe_id on success, or an error on failure.
 */
 app.post('/add_recipe', function (req, res) {
     try {
         if (req.body.recipe_name != undefined && req.body.login_id != undefined
             && req.body.prep_time != undefined && req.body.serving_size != undefined
-            && req.body.tags != undefined && req.body.tags instanceof Array && req.body.recipe_text != undefined){
+            && req.body.tags != undefined && req.body.tags instanceof Array 
+            && req.body.recipe_text != undefined && req.body.main_image != undefined){
 
             // Lookup the user's username from login_id:
             try {
@@ -353,6 +498,7 @@ app.post('/add_recipe', function (req, res) {
                             recipe_id: newRecipeID,
                             recipe_name: req.body.recipe_name,
                             author_username: user.username,
+                            main_image: req.body.main_image,
                             recipe_text: req.body.recipe_text,
                             rating: 0,
                             num_ratings: 0,
@@ -588,6 +734,7 @@ var recipeSchema = mongoose.Schema({
     "unix_time_added": Number,
     "recipe_id": String,
     "recipe_name": String,
+    "main_image": String,
     "author_username": String,
     "recipe_text": String,
     "rating": Number,
