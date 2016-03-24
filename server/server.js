@@ -29,6 +29,7 @@ db.once('open', function() {
 
 
 // REST API: -----------------------------------------------------
+// All input and output data is a JSON.
 
 /*
     --> Input: username, hashed_password.
@@ -203,7 +204,33 @@ app.post('/get_user_profile', function (req, res) {
     --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/subscribe_to', function (req, res) {
-  // TODO (Becky)
+    try {
+        if (req.body.login_id != undefined && req.body.username != undefined){
+            User.findOne({login_id: req.body.login_id}, function (err, current_user){
+                User.findOne({username: req.body.username}, function (err, other_user){
+                    try {
+
+                        current_user.subscriptions.push(other_user.username);
+                        other_user.subscribers.push(current_user.username);
+
+                        current_user.save(function(err){
+                            if (err){ res.send(makeErrorJSON(err)); }
+                        });
+                        other_user.save(function(err){
+                            if (err){ res.send(makeErrorJSON(err)); }
+                        });
+
+                    } catch (err){
+                        res.send(makeErrorJSON("User does not exist.")); // Or invalid login_id.
+                    }
+                });    
+            });
+        } else {
+            res.send(makeErrorJSON("Invalid request."));   
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
 });
 
 /*
@@ -418,42 +445,36 @@ app.post('/get_recipes', function (req, res) {
 app.post('/get_recipe_detail', function (req, res) {
     try {
         if (req.body.recipe_id != undefined){
-
             // Lookup the recipe:
-            try {
-                Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe) {
-                    try {
+            Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe) {
+                try {
 
-                        var recipeJSON = {
-                            recipe_id: req.body.recipe_id,
-                            recipe_name: recipe.name,
-                            author_username: recipe.author_username,
-                            main_image: recipe.main_image,
-                            rating: recipe.rating,
-                            num_ratings: recipe.num_ratings,
-                            prep_time: recipe.prep_time,
-                            serving_size: recipe.serving_size,
-                            tags: recipe.tags,
-                            recipe_text: recipe.recipe_text,
-                            comments: recipe.comments,
-                            views: recipe.views
-                        };
+                    var recipeJSON = {
+                        recipe_id: req.body.recipe_id,
+                        recipe_name: recipe.name,
+                        author_username: recipe.author_username,
+                        main_image: recipe.main_image,
+                        rating: recipe.rating,
+                        num_ratings: recipe.num_ratings,
+                        prep_time: recipe.prep_time,
+                        serving_size: recipe.serving_size,
+                        tags: recipe.tags,
+                        recipe_text: recipe.recipe_text,
+                        comments: recipe.comments,
+                        views: recipe.views
+                    };
 
-                        recipe.views++;
-                        recipe.save(function(err){
-                            if (err){ res.send(makeErrorJSON(err)); }
-                        });
+                    recipe.views++;
+                    recipe.save(function(err){
+                        if (err){ res.send(makeErrorJSON(err)); }
+                    });
 
-                        res.send(JSON.stringify(recipeJSON));
+                    res.send(JSON.stringify(recipeJSON));
 
-                    } catch (err){
-                        res.send(makeErrorJSON("Recipe does not exist."));    
-                    }
-                });
-            } catch (err){
-                res.send(makeErrorJSON(err));
-            }
-
+                } catch (err){
+                    res.send(makeErrorJSON("Recipe does not exist."));    
+                }
+            });
         } else {
             res.send(makeErrorJSON("Invalid request."));   
         }
@@ -486,66 +507,62 @@ app.post('/add_recipe', function (req, res) {
             && req.body.recipe_text != undefined && req.body.main_image != undefined){
 
             // Lookup the user's username from login_id:
-            try {
-                User.findOne({login_id: req.body.login_id}, function (err, user) {
-                    try {
+            User.findOne({login_id: req.body.login_id}, function (err, user) {
+                try {
 
-                        var newRecipeID = generateID();
+                    var newRecipeID = generateID();
 
-                        // Create a new recipe:
-                        var newRecipeJSON = {
-                            unix_time_added: Date.now(),
-                            recipe_id: newRecipeID,
-                            recipe_name: req.body.recipe_name,
-                            author_username: user.username,
-                            main_image: req.body.main_image,
-                            recipe_text: req.body.recipe_text,
-                            rating: 0,
-                            num_ratings: 0,
-                            prep_time: req.body.prep_time,
-                            serving_size: req.body.serving_size,
-                            tags: req.body.tags,
-                            comments: [],
-                            views: 1
-                        };
+                    // Create a new recipe:
+                    var newRecipeJSON = {
+                        unix_time_added: Date.now(),
+                        recipe_id: newRecipeID,
+                        recipe_name: req.body.recipe_name,
+                        author_username: user.username,
+                        main_image: req.body.main_image,
+                        recipe_text: req.body.recipe_text,
+                        rating: 0,
+                        num_ratings: 0,
+                        prep_time: req.body.prep_time,
+                        serving_size: req.body.serving_size,
+                        tags: req.body.tags,
+                        comments: [],
+                        views: 1
+                    };
 
-                        var newRecipe = new Recipe(newRecipeJSON);
-                        newRecipe.save(function(err){
-                            if (err){ res.send(makeErrorJSON(err)); }
-                        });
+                    var newRecipe = new Recipe(newRecipeJSON);
+                    newRecipe.save(function(err){
+                        if (err){ res.send(makeErrorJSON(err)); }
+                    });
 
-                        // Add this to the user's list of authored recipes:
-                        user.authored_recipes.push(newRecipeID);
+                    // Add this to the user's list of authored recipes:
+                    user.authored_recipes.push(newRecipeID);
 
-                        // Update user's tags_by_usage data structure:
-                        for (var i = 0; i < req.body.tags.length; i++){
-                            var broke = false;
-                            for (var j = 0; j < user.tags_by_usage.length; j++){
-                                if (req.body.tags[i] == user.tags_by_usage[j].tag){
-                                    user.tags_by_usage[j].times_used++;
-                                    broke = true;
-                                    break;
-                                }
-                            }
-                            if (!broke){
-                                user.tags_by_usage.push({"tag": req.body.tags[i], "times_used": 1});
+                    // Update user's tags_by_usage data structure:
+                    for (var i = 0; i < req.body.tags.length; i++){
+                        var broke = false;
+                        for (var j = 0; j < user.tags_by_usage.length; j++){
+                            if (req.body.tags[i] == user.tags_by_usage[j].tag){
+                                user.tags_by_usage[j].times_used++;
+                                broke = true;
+                                break;
                             }
                         }
-
-                        user.save(function(err){
-                            if (err){ res.send(makeErrorJSON(err)); }
-                        });
-
-                        var recipe_idJSON = {"recipe_id": newRecipeID};
-                        res.send(JSON.stringify(recipe_idJSON));
-
-                    } catch (err){
-                        res.send(makeErrorJSON("User does not exist."));    
+                        if (!broke){
+                            user.tags_by_usage.push({"tag": req.body.tags[i], "times_used": 1});
+                        }
                     }
-                });
-            } catch (err){
-                res.send(makeErrorJSON(err));
-            }
+
+                    user.save(function(err){
+                        if (err){ res.send(makeErrorJSON(err)); }
+                    });
+
+                    var recipe_idJSON = {"recipe_id": newRecipeID};
+                    res.send(JSON.stringify(recipe_idJSON));
+
+                } catch (err){
+                    res.send(makeErrorJSON("User does not exist."));    
+                }
+            });
 
         } else {
             res.send(makeErrorJSON("Invalid request."));
@@ -568,49 +585,48 @@ app.post('/rate_recipe', function (req, res) {
             && req.body.login_id != undefined){
 
             // Lookup the recipe:
-            try {
-                Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe) {
+            Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe) {
+                // Lookup the user:
+                User.findOne({login_id: req.body.login_id}, function (err, user) {
                     try {
 
-                        // Lookup the user:
-                        try {
-                            User.findOne({user_id: req.body.user_id}, function (err, user) {
-                                try {
+                        newRating = recipe.rating * recipe.num_ratings;
+                        newRating = newRating + req.body.rating;
+                        recipe.num_ratings++;
+                        recipe.rating = newRating / recipe.num_ratings;
 
-                                    newRating = recipe.rating * recipe.num_ratings;
-                                    newRating = newRating + req.body.rating;
-                                    recipe.num_ratings++;
-                                    recipe.rating = newRating / recipe.num_ratings;
-
-                                    if (req.body.rating == 5){
-                                        user.fav_recipes.push(req.body.recipe_id);
+                        // Add recipe to user's favourites.
+                        if (user){
+                            if (req.body.rating == 5){
+                                // Do not add if recipe already in favourites.
+                                alreadyFav = false;
+                                for (var i = 0; i < user.fav_recipes.length; i++){
+                                    if (user.fav_recipes[i] == req.body.recipe_id){
+                                        alreadyFav = true;
+                                        break;
                                     }
-
-                                    user.save(function(err){
-                                        if (err){ res.send(makeErrorJSON(err)); }
-                                    });
-
-                                    recipe.save(function(err){
-                                        if (err){ res.send(makeErrorJSON(err)); }
-                                    });
-
-                                    res.send(makeSuccessJSON());
-
-                                } catch (err){
-                                    res.send(makeErrorJSON("User does not exist."));    
                                 }
-                            });
-                        } catch (err){
-                            res.send(makeErrorJSON(err));
+                                if (!alreadyFav){
+                                    user.fav_recipes.push(req.body.recipe_id);
+                                }
+                            }
                         }
 
+                        user.save(function(err){
+                            if (err){ res.send(makeErrorJSON(err)); }
+                        });
+
+                        recipe.save(function(err){
+                            if (err){ res.send(makeErrorJSON(err)); }
+                        });
+
+                        res.send(makeSuccessJSON());
+
                     } catch (err){
-                        res.send(makeErrorJSON("Recipe does not exist."));    
+                        res.send(makeErrorJSON("User or recipe is invalid."));    
                     }
                 });
-            } catch (err){
-                res.send(makeErrorJSON(err));
-            }
+            });
 
         } else {
             res.send(makeErrorJSON("Invalid request."));   
@@ -673,7 +689,6 @@ function getProfileByUsernameCallback(username, res){
             try {
 
                 // Compute most used tags:
-                console.log(user.tags_by_usage)
                 var tagsCopy = user.tags_by_usage.slice();
                 tagsCopy.sort(function(a, b){
                     return a.times_used - b.times_used;
