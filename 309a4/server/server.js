@@ -150,6 +150,7 @@ app.post('/change_bio', function (req, res) {
                 user.bio = req.body.new_bio;
                 user.save(function(err){
                     if (err){ res.send(makeErrorJSON(err)); }
+                    else { res.send(makeSuccessJSON()); }
                 });
             } catch (err) {
                 res.send(makeErrorJSON(err));
@@ -180,6 +181,7 @@ app.post('/change_password', function (req, res) {
                     user.hashed_password = req.body.new_hashed_password;
                     user.save(function(err){
                         if (err){ res.send(makeErrorJSON(err)); }
+                        else { res.send(makeSuccessJSON()); }
                     });
                 }
             } catch (err){
@@ -206,6 +208,7 @@ app.post('/change_profile_image', function (req, res) {
                 user.profile_image = req.body.new_image;
                 user.save(function(err){
                     if (err){ res.send(makeErrorJSON(err)); }
+                    else { res.send(makeSuccessJSON()); }
                 });
             } catch (err) {
                 res.send(makeErrorJSON(err));
@@ -557,6 +560,7 @@ app.post('/add_comment', function (req, res) {
                         "comment_text": req.body.comment_text});
                     recipe.save(function(err){
                         if (err){ res.send(makeErrorJSON("here2")); }
+                        else { res.send(makeSuccessJSON()); }
                     });
                 } catch (err) {
                     res.send(makeErrorJSON("here"));
