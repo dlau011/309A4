@@ -132,6 +132,25 @@ function get_username() {
 
         });
 }
+/* get_subscriptions returns the list of recipes id*/
+function get_subscriptions() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var authored_recipes[] = JSON.parse(data).authored_recipes;
+            if (authored_recipes){// authored_recipes[] or authored_recipes to check ?
+                return authored_recipes;//two cases, list could me empty or not
+            }
+            if (JSON.parse(data).error){
+                console.log(JSON.parse(data).error);
+                return "JSON Error";
+            }
+            else{
+                return "Authored Recipes Not Found";
+            }
+        });
+}
 
 function rate_recipe(rating, recipe_id) {
     var requestJSON = new Object();
@@ -179,6 +198,15 @@ function display_index_page() {
     get_username()
 }
 
+
+function display_Authored_Recipes(authored_recipes){
+    if(authored_recipes.length == 0){
+        //display something like "you haven't save any recipes"
+    }
+    else{
+        //need to make a helper function
+    }
+}
 // from clicking a recipe i display its page
 function display_recipe_page(recipe_id) {
     location.href = "recipe.html";
@@ -188,6 +216,7 @@ function display_recipe_page(recipe_id) {
     var recipe = get_recipe_detail(recipe_id);
     console.log(recipe);
 }
+
 function hash(password) {
       var hash = 0, i, chr, len;
       if (password.length === 0) return hash;
