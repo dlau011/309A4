@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,17 +18,25 @@
     <!-- Custom styles for this template -->
     <script src="jquery.js"></script>
 </head>
-
 <body>
+	<a href="login.html">Back to Login</a>
 	<form class="form" method="post" id="login_form">
-		<h2>Log in to Cookbook</h2>
-		<label>Username :</label>
-		<input type="text" id="username" value="">
-		<label>Password :</label>
-		<input type="password" id="password" value="">
-		<input type="button" onclick="login()" value="Login">
+		<h2>Registration</h2>
+		<label>Username :</label><br>
+		<input type="text" id="username" value=""><br>
+		<label>Password :</label><br>
+		<input type="password" id="password" value=""><br>
+		<label>Retype Password :</label><br>
+		<input type="password" id="password_check" value=""><br>
+		<p id="password_fail"></p>
+		<label>Full Name :</label><br>
+		<input type="text" id="fullname" value=""><br>
+		<label>About yourself (optional) :</label><br>
+		<textarea class="longInput" id="bio" value="" cols="30" rows="10" value=""></textarea><br>
+		<label>Link to profile picture (optional) :</label><br>
+		<input type="text" id="profile_image" value=""><br>
+		<input type="button" onclick="register()" value="Register">
+		<p id="register_fail"></p>
 	</form>
-	<div id="message"></div>
-    <p>Don't have an account yet? <a href="register.html">Register here</a></p>
 </body>
 </html>

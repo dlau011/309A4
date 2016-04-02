@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,17 +18,24 @@
     <!-- Custom styles for this template -->
     <script src="jquery.js"></script>
 </head>
-
 <body>
-	<form class="form" method="post" id="login_form">
-		<h2>Log in to Cookbook</h2>
-		<label>Username :</label>
-		<input type="text" id="username" value="">
-		<label>Password :</label>
-		<input type="password" id="password" value="">
-		<input type="button" onclick="login()" value="Login">
-	</form>
-	<div id="message"></div>
-    <p>Don't have an account yet? <a href="register.html">Register here</a></p>
+  <form class="form" method="post" id="recipe_form">
+    <h2>Create your Recipe</h2>
+    <label>Recipe Name :</label><br>
+    <input type="text" id="recipe_name" value=""><br>
+    <label>Preperation Time :</label><br>
+    <input type="text" id="prep_time" value=""><br>
+    <label>Serving Size :</label><br>
+    <input type="text" id="serving_size" value=""><br>
+    <label>Description :</label><br>
+    <textarea class="longInput" id="description" value="" cols="30" rows="10" value=""></textarea><br>
+    <label>Tags</label><br>
+    <input type="text" id="tags" value=""><br>
+    <label>Link to Finised Dish Image :</label><br>
+    <input type="text" id="image" value=""><br>
+    <input type="button" onclick="create_recipe()" value="Post Recipe">
+    <p id="post_fail"></p>
+  </form>
+
 </body>
 </html>
