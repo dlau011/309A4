@@ -112,7 +112,8 @@ app.post('/create_user', function (req, res) {
                             num_ratings: 0,
                             tags_by_usage: [],
                             fav_recipes: [],
-                            authored_recipes: []
+                            authored_recipes: [],
+                            recipe_playlists: []
                         };
 
                         var newUser = new User(newUserJSON);
@@ -233,7 +234,7 @@ app.post('/change_profile_image', function (req, res) {
 
     --> Input: (optional) username, (optional) login_id
     --> Return: {username, full_name, profile_image, bio, rating, number_of_subscribers, [subscribed_to], [most_used_tags],
-               [favourite_recipes], [authored_recipes]}
+               [favourite_recipes], [authored_recipes], [recipe_playlists]}
 */
 app.post('/get_user_profile', function (req, res) {
     try {
@@ -722,6 +723,128 @@ app.post('/rate_recipe', function (req, res) {
     }
 });
 
+
+/*
+    Create and add a recipe playlist for the currently logged in user.
+    Optionally specify a list of recipe_id to include in the playlist.
+    --> Input: login_id, recipe_playlist_name, (optional) [recipe_id_list]
+    --> Return: recipe_playlist_id
+*/
+app.post('/create_recipe_playlist', function(req, res){
+    try {
+        if (req.body.login_id != undefined && req.body.recipe_playlist_name != undefined){
+
+            // Lookup the user:
+            User.findOne({login_id: req.body.login_id}, function (err,user){
+                try {
+
+                    var recipeIDList = []
+                    if ("recipe_id_list" in req.body){
+                        recipeIDList = req.body.recipe_id_list;
+                    }
+
+                    var newRecipePlaylistID = generateID()
+
+                    // Create the recipe_playlist:
+                    var newRecipePlaylistJSON = {
+                        recipe_playlist_id: newRecipePlaylistID,
+                        recipe_playlist_name: req.body.recipe_playlist_name,
+                        recipes: recipeIDList
+                    };
+
+                    var newRecipePlaylist = new RecipePlaylist(newRecipePlaylistJSON);
+                    newRecipePlaylist.save(function(err){
+                        if (err){ res.send(makeErrorJSON(err)); }
+                    });
+
+                    // Add this to the user's list of authored recipes:
+                    user.recipe_playlists.push(newRecipePlaylistID);
+                    user.save(function(err){
+                       if (err){ res.send(makeErrorJSON(err)); } 
+                    })
+
+                    var recipe_playlist_idJSON = {"recipe_playlist_id": newRecipePlaylistID};
+                    res.send(JSON.stringify(recipe_playlist_idJSON));
+
+                } catch (err){
+                    res.send(makeErrorJSON("login_id is invalid or the user does not exist."));
+                }
+            });
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."));   
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
+});
+
+/*
+    Add a recipe_id to the specified playlist.
+    --> Input: recipe_id, recipe_playlist_id
+    --> Return: {"success": True} on success, or an error on failure.
+*/
+app.post('/add_recipe_to_playlist', function(req, res){
+    try {
+        if (req.body.recipe_id != undefined && req.body.recipe_playlist_id != undefined){
+
+            // Lookup the recipe playlist:
+            RecipePlaylist.findOne({recipe_playlist_id: req.body.recipe_playlist_id}, function (err, playlist){
+                try {
+
+                    playlist.recipes.push(req.body.recipe_id);
+                    playlist.save(function(err){
+                        if (err){ res.send(makeErrorJSON(err)); }
+                    });
+
+                    res.send(makeSuccessJSON());
+
+                } catch (err) {
+                    res.send(makeErrorJSON("recipe_playlist_id is invalid or the playlist does not exist."))
+                }
+            });
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."))
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
+});
+
+/*
+    Retrieve a recipe_playlist.
+    --> Input: recipe_playlist_id
+    --> Return: recipe_playlist_name, [recipes]
+*/
+app.post('/get_recipe_playlist', function(req, res){
+    try {
+        if (req.body.recipe_playlist_id != undefined){
+
+            // Lookup the recipe playlist:
+            RecipePlaylist.findOne({recipe_playlist_id: req.body.recipe_playlist_id}, function (err, playlist){
+                try {
+
+                    var recipePlaylistJSON = {
+                        recipe_playlist_id: playlist.recipe_playlist_id,
+                        recipe_playlist_name: playlist.recipe_playlist_name,
+                        recipes: playlist.recipes
+                    };
+                    res.send(JSON.stringify(recipePlaylistJSON));
+
+                } catch (err){
+                    res.send(makeErrorJSON("recipe_playlist_id is invalid or the playlist does not exist."))   
+                }
+            });
+
+        } else {
+            res.send(makeErrorJSON("Invalid request."))
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
+});
+
 /*
     This is a GET request, it kills the db.
 */
@@ -759,7 +882,8 @@ function makeSuccessJSON(){
 }
 
 /*
-    Generate a new unique id and return it. Can be used for login_id or recipe_id.
+    Generate a new unique id and return it. Can be used for login_id, recipe_id,
+    or recipe_playlist_id.
 */
 function generateID(){
     return "" + Date.now() + "-" + Math.floor((Math.random() * 1000000) + 1);
@@ -795,7 +919,8 @@ function getProfileByUsernameCallback(username, res){
                     subscribed_to: user.subscriptions,
                     most_used_tags: mostUsedTags,
                     favourite_recipes: user.fav_recipes,
-                    authored_recipes: user.authored_recipes
+                    authored_recipes: user.authored_recipes,
+                    recipe_playlists: user.recipe_playlists
                 };
 
                 res.send(JSON.stringify(userProfileJSON));
@@ -827,7 +952,8 @@ var userSchema = mongoose.Schema({
 
     "tags_by_usage": [{"tag": String, "times_used": Number}], // When user adds a dish, update this.
 
-    "fav_recipes": [String]  // Add recipe_id to this list whenever a user rates a recipe 5 stars.
+    "fav_recipes": [String],  // Add recipe_id to this list whenever a user rates a recipe 5 stars.
+    "recipe_playlists": [String]    // List of recipe_playlist_id
 });
 var User = mongoose.model('User', userSchema);
 
@@ -848,3 +974,10 @@ var recipeSchema = mongoose.Schema({
     "comments": [{"author_username": String, "comment_text": String}]
 });
 var Recipe = mongoose.model('Recipe', recipeSchema);
+
+var recipePlaylistSchema = mongoose.Schema({
+    "recipe_playlist_id": String,
+    "recipe_playlist_name": String,
+    "recipes": [String]  // List of recipe_id
+});
+var RecipePlaylist = mongoose.model('RecipePlaylist', recipePlaylistSchema);
