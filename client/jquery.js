@@ -13,6 +13,7 @@ $(document).ready(function() {
 });
 
 
+
 function register() {
     var requestJSON = new Object();
     // Make sure user typed the right password
@@ -117,7 +118,7 @@ function get_popular_recipes() {
             var list = "";
             for (i = 0; i < recipe.length; i++) {
                 var recipe_id = "\"" + recipe[i].recipe_id + "\"";
-                list += "<li><a style='cursor: pointer; cursor: hand;' onclick='view_recipe(" + recipe_id + ")'>" + recipe[i].recipe_name + "</a></li>";
+                list += "<li><a style='cursor: pointer; cursor: hand;' onclick='display_recipe_page(" + recipe_id + ")'>" + recipe[i].recipe_name + "</a></li>";
             }
             $("#popular_recipes").append(list);
         });
@@ -137,33 +138,75 @@ function get_username() {
             }
             if (JSON.parse(data).error) {
                 console.log(JSON.parse(data).error);
-                return;
+                return "JSON Error";
             }
             else {
-                console.log("get_username error");
-                return;
+                return "User Not Found";
             }
 
         });
 }
-/* get_subscriptions returns the list of recipes id*/
+/*
+get_fav_recipes return the favourite_recipes list. 
+*/
+function get_fav_recipes() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+
+            var fav_recipes = JSON.parse(data).favourite_recipes;
+            if (fav_recipes){
+                return fav_recipes;
+            }
+            if (fav_recipes.error){
+                console.log(fav_recipes.error);
+                return "JSON Error";
+            }
+        });
+}
+
+/*
+get_recipe_id return the id of giving user
+*/
+function get_recipe_id_list (username) {
+    var requestJSON = new Object();
+    requestJSON.username = username;
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data).authored_recipes;
+            if (object){
+                return object;
+            }
+            if(object.error){
+                console.log("get_recipe_id error");
+                return "JSON Error";
+            }
+        });
+}
+
+/*
+get_subscriptions returns list of list. [[1,2,3,5],[1,3,4],[2,123,1]] 3 people and 3 list of recipes id
+*/
 function get_subscriptions() {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
     $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
         .done(function(data) {
-            var subscriptions = JSON.parse(data).authored_recipes;
-            if (authored_recipes){// authored_recipes[] or authored_recipes to check ?
-                return authored_recipes;//two cases, list could me empty or not
+            var sub_recipes = [];
+            var subscribed_to = JSON.parse(data).subscribed_to; //return list of uersname 
+            if (subscribed_to){
+                for (var i = 0; i < subscribed_to.length; i++) {
+                    sub_recipes[i] = get_recipe_id_list(subscribed_to[i]);
+                };
+
             }
-            if (JSON.parse(data).error){
-                console.log(JSON.parse(data).error);
+            if (subscribed_to.error){
+                console.log(subscribed_to.error);
                 return "JSON Error";
             }
-            else{
-                return "Authored Recipes Not Found";
-            }
         });
+        return sub_recipes;
 }
 
 function rate_recipe(rating, recipe_id) {
@@ -208,8 +251,12 @@ function get_recipe_detail(recipe_id) {
     var requestJSON = new Object();
     requestJSON.recipe_id = recipe_id;
     //--> Return: {recipe_id, recipe_name, author_username, main_image, rating, num_ratings, prep_time, serving_size, [tags], recipe_text, [comments], views}
+
+    //console.log(recipe_id); OK
+    //console.log(requestJSON.recipe_id); OK
     $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON))
         .done(function(data) {
+            console.log(data);
             var object = JSON.parse(data);
             if (object.recipe_id) {
                 $("#recipe_name").text(object.recipe_name);
@@ -222,10 +269,12 @@ function get_recipe_detail(recipe_id) {
             if (object.error) {
                 console.log(object.error);
             }
-            else {
-                console.log("Recipe not found");
+            if (JSON.parse(data).recipe_id) {
+                console.log("object");
+                return object;
             }
         });
+        console.log("???");
 }
 // Functions to display pages
 // link with onclick = display_recipe_page(this.recipe_id)
@@ -250,6 +299,15 @@ function display_authored_recipes(){
     var login_id = localStorage.getItem("login_id");
 
     if(authored_recipes.length == 0){
+    get_subscriptions();
+
+}
+
+/*
+Display a list of recipes.// eg: authored_recipes,Recent Recipes,My Favourite Recipes
+*/
+function display_Recipes(recipes){
+    if(recipes.length == 0){
         //display something like "you haven't save any recipes"
     }
     else{
@@ -271,6 +329,53 @@ function display_recipe_page() {
     //console.log(recipe);
     //$("#recipe_by").text(recipe.author_username);
     //console.log(recipe);
+/*
+Display a recipe (4 is max # of display in one row)
+*/
+function display_recipe_info (recipe_id) {
+    var requestJSON = new Object();
+    requestJSON.recipe_id = recipe_id;
+    $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log(object.error);
+            }
+// this function should be called in multiple spots.
+//declare a spefic class in html files. assume class = list_of_recipes
+            var max_rating = 5;
+            var list = "";
+            list += "<img src=object.main_image alt=\"...\" class=\"img-rounded\">";
+            list += "<div class=\"caption\">";
+            list += "<h4>"+ object.recipe_name +"</h4>";
+            list += "<p id=\"user\">by <a href=\"#\">" + object.author_username + "</a></p><p>";
+            
+            for (i = 0; i < max_rating; i++){
+                if(object.avg_rating - 1 >= 1){
+                    list += "<span class=\"glyphicon glyphicon-star\" aria-hidden=\"true\"></span>";
+                }
+                else{
+                    list +="<span class=\"glyphicon glyphicon-star-empty\" aria-hidden=\"true\"></span>";
+                }
+            }
+
+            list += object.avg_rating + "</p>";
+            list += "<p><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></span>"+ object.prep_time + "</p>";
+            list += "</div>";
+
+
+            $("#popular_recipes").append(list); //dont sure where should i add it
+        });
+}
+
+// from clicking a recipe i display its page
+function display_recipe_page(recipe_id) {
+    location.href = "recipe.html";
+    get_username();
+    //recipe id being passed in from get_popular_recipes is different from recipe id coming out
+    //console.log(recipe_id); OK
+    var recipe = get_recipe_detail(recipe_id);
+    console.log(recipe);
 }
 
 function hash(password) {
@@ -283,7 +388,3 @@ function hash(password) {
       }
       return hash;
 };
-
-//clicking recipe link onclick=/recipe.html
-//how to get recipe id to recipe.html?
-//recipe.html onload = display_recipe_page

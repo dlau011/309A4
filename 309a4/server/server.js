@@ -13,11 +13,13 @@ const DEFAULT_USER_PROFILE_IMAGE = "";
 
 // Init: ---------------------------------------------------------
 
+var cors = require('cors');
 var mongoose = require('mongoose');
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 // Connect to MongoDB:
 mongoose.connect('mongodb://localhost:'+MONGODB_PORT);
@@ -26,7 +28,6 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', function() {
     console.log("Connected to MongoDB.");
 });
-
 
 // REST API: -----------------------------------------------------
 // All input and output data is a JSON.
@@ -143,7 +144,7 @@ app.post('/create_user', function (req, res) {
     --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/change_bio', function (req, res) {
-  try {
+    try {
     if (req.body.login_id != undefined && req.body.new_bio != undefined){
         User.findOne({login_id: req.body.login_id}, function (err, user) {
             try {
@@ -159,9 +160,9 @@ app.post('/change_bio', function (req, res) {
     } else {
         res.send(makeErrorJSON("Invalid request."));
     }
-  } catch (err){
+    } catch (err){
     res.send(makeErrorJSON(err));
-  }
+    }
 });
 
 /*
@@ -170,7 +171,7 @@ app.post('/change_bio', function (req, res) {
     --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/change_password', function (req, res) {
-  try {
+    try {
     if (req.body.login_id != undefined && req.body.old_hashed_password != undefined
         && req.body.new_hashed_password != undefined) {
         User.findOne({login_id: req.body.login_id}, function (err, user) {
@@ -191,9 +192,9 @@ app.post('/change_password', function (req, res) {
     } else {
         res.send(makeErrorJSON("Invalid request."));
     }
-  } catch (err){
+    } catch (err){
     res.send(makeErrorJSON(err));
-  }
+    }
 });
 
 /*
@@ -201,7 +202,7 @@ app.post('/change_password', function (req, res) {
     --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/change_profile_image', function (req, res) {
-  try {
+    try {
     if (req.body.login_id != undefined && req.body.new_image != undefined){
         User.findOne({login_id: req.body.login_id}, function (err, user) {
             try {
@@ -217,9 +218,9 @@ app.post('/change_profile_image', function (req, res) {
     } else {
         res.send(makeErrorJSON("Invalid request."));
     }
-  } catch (err){
+    } catch (err){
     res.send(makeErrorJSON(err));
-  }
+    }
 });
 
 /*
@@ -236,7 +237,6 @@ app.post('/change_profile_image', function (req, res) {
 */
 app.post('/get_user_profile', function (req, res) {
     try {
-
         if ("login_id" in req.body){ // Get current user's profile.
             User.findOne({login_id: req.body.login_id}, function (err, user) {
                 try {
@@ -496,7 +496,7 @@ app.post('/get_recipes', function (req, res) {
 
         --> Input: recipe_id
         --> Return: {recipe_id, recipe_name, author_username, main_image, rating, num_ratings, prep_time, serving_size,
-                     [tags], recipe_text, [comments], views}
+                     [tags], recipe_text, [comments], views, [ingredients]}
 
             Notes: recipe_text should support html, so make sure to use $('...').html(...) to set it on the
                    frontend instead of $('...').text(...), this will allow it to have embedded images and formatting.
@@ -510,7 +510,7 @@ app.post('/get_recipe_detail', function (req, res) {
 
                     var recipeJSON = {
                         recipe_id: req.body.recipe_id,
-                        recipe_name: recipe.name,
+                        recipe_name: recipe.recipe_name,
                         author_username: recipe.author_username,
                         main_image: recipe.main_image,
                         rating: recipe.rating,
@@ -520,7 +520,8 @@ app.post('/get_recipe_detail', function (req, res) {
                         tags: recipe.tags,
                         recipe_text: recipe.recipe_text,
                         comments: recipe.comments,
-                        views: recipe.views
+                        views: recipe.views,
+                        ingredients: recipe.ingredients
                     };
 
                     recipe.views++;
@@ -548,7 +549,7 @@ app.post('/get_recipe_detail', function (req, res) {
         --> Return: {"success": True} on success, or an error on failure.
 */
 app.post('/add_comment', function (req, res) {
-  try {
+    try {
     if (req.body.recipe_id != undefined && req.body.login_id != undefined
         && req.body.comment_text != undefined){
         // Find user
@@ -570,16 +571,16 @@ app.post('/add_comment', function (req, res) {
     } else {
         res.send(makeErrorJSON("Invalid request."));
     }
-  } catch (err){
+    } catch (err){
     res.send(makeErrorJSON("here3"));
-  }
+    }
 });
 
 /*
     Add a recipe by the user with login_id.
     Note that recipe_text can have html formatting (including images if they're hosted elsewhere).
 
-    --> Input: recipe_name, login_id, prep_time, serving_size, [tags], recipe_text, main_image
+    --> Input: recipe_name, login_id, prep_time, serving_size, [tags], recipe_text, main_image, [ingredients]
     --> Return: recipe_id on success, or an error on failure.
 */
 app.post('/add_recipe', function (req, res) {
@@ -587,7 +588,8 @@ app.post('/add_recipe', function (req, res) {
         if (req.body.recipe_name != undefined && req.body.login_id != undefined
             && req.body.prep_time != undefined && req.body.serving_size != undefined
             && req.body.tags != undefined && req.body.tags instanceof Array 
-            && req.body.recipe_text != undefined && req.body.main_image != undefined){
+            && req.body.recipe_text != undefined && req.body.main_image != undefined
+            && req.body.ingredients != undefined){
 
             // Lookup the user's username from login_id:
             User.findOne({login_id: req.body.login_id}, function (err, user) {
@@ -608,6 +610,7 @@ app.post('/add_recipe', function (req, res) {
                         prep_time: req.body.prep_time,
                         serving_size: req.body.serving_size,
                         tags: req.body.tags,
+                        ingredients: req.body.ingredients,
                         comments: [],
                         views: 1
                     };
@@ -840,6 +843,7 @@ var recipeSchema = mongoose.Schema({
     "prep_time": String,
     "serving_size": String,
     "tags": [String],
+    "ingredients": [String],
     "views": Number,
     "comments": [{"author_username": String, "comment_text": String}]
 });
