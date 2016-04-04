@@ -12,9 +12,6 @@
 
     <title>Chef Dude</title>
 
-    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="jquery.js"></script>
-
     <!-- Bootstrap core CSS -->
     <!--May need to change link again-->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -22,7 +19,7 @@
     <!-- Custom styles for this template -->
     <link href="profile.css" rel="stylesheet">
   </head>
-<body onload="display_profile_page()">
+<body>
   
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -49,7 +46,7 @@
             <li><a href="browse.html">Browse</a></li>
             <!--Profile-->
             <li class="dropdown">
-              <a href="#" id="username" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">chefd00d <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="profile.html">Profile</a></li>
                 <li><a href="#">Settings</a></li>
@@ -62,64 +59,38 @@
 
 
     <div class="container">
-      <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-3">
-<<<<<<< HEAD
-          <img src="img/chef.jpg" alt="..." class="img-rounded" id="profilepic">
+    	<div class="row">
+    		<div class="col-md-1"></div>
+    		<div class="col-md-3">
+    			<img src="img/chef.jpg" alt="..." class="img-rounded" id="profilepic">
           <h4>Average Rating:</h4>
-                <p> 
-                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                  <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-                  4.5
-                </p>
+	              <p> 
+	                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+	                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+	                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+	                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+	                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+	                4.5
+	              </p>
           <h4 id="subscribers">Subscribers:</h4>648,950
           <h4 id="subscribers">Subscribed: </h4>424
-         </div>
-        <div class="col-md-4" id="subsection">
-          <h3>Chef Dude <a href="#"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></h3>
-          <a href="#">@chefdood</a>
-          <p>I am the best cook, that's why I am THE Chef Dude.</p>
-        </div>
-        <div class="col-md-4" id="subbutton">
-          <button id="subscribe" class="btn btn-primary" type="button">Subscribe</button>
-        <h4>Most Used Tags:</h4>
-        <ul class="list-unstyled">
-          <li><a href="#">#italian</a></li>
-          <li><a href="#">#glutenfree</a></li>
-          <li><a href="#">#carrots</a></li>
-        </ul>
-        </div>  
-      </div>
+	       </div>
+    		<div class="col-md-4" id="subsection">
+	    		<h3>Chef Dude <a href="#"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></h3>
+	    		<a href="#">@chefdood</a>
+	    		<p>I am the best cook, that's why I am THE Chef Dude.</p>
+    		</div>
+    		<div class="col-md-4" id="subbutton">
+	    		<button id="subscribe" class="btn btn-primary" type="button">Subscribe</button>
+				<h4>Most Used Tags:</h4>
+				<ul class="list-unstyled">
+					<li><a href="#">#italian</a></li>
+					<li><a href="#">#glutenfree</a></li>
+					<li><a href="#">#carrots</a></li>
+				</ul>
+    		</div>	
+    	</div>
     </div> <!-- end of container -->
-=======
-          <img id="profilepic" src="img/chef.jpg" alt="..." class="img-rounded" >
-          <h4>Average Rating:</h4>
-                <p> 
-                  <div id="profilerat"></div>
-                </p>
-          <h4 id="profilesubscribers">Subscribers:</h4> <div id="profile_subs"></div>
-          <h4 id="profilesubscribed">Subscribed: </h4> <div id="profile_subed"></div>
-         </div>
-        <div class="col-md-4" id="subsection">
-          <h3><div id="profile_name"></div></h3> <h3><a href="#"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a></h3>
-          <div id="profile_userid"> </div>
-          <div id="profile_bio"></div>
-          
-        </div>
-        <div class="col-md-4" id="subbutton">
-          <button id="subscribe" class="btn btn-primary" type="button" onclick="subscribe_to()">Subscribe</button>
-        <h4>Most Used Tags:</h4>
-        <ul id="profile_tags" class="list-unstyled">
-          
-        </ul>
-        </div>  
-      </div>
-    </div>
->>>>>>> 1ef1641f931bdde03da77e8559d77e1393dd6b1f
 
     <div class="container">
       <h3 id="list">Recent Recipes</h3>

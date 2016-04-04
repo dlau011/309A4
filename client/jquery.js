@@ -180,7 +180,26 @@ function login() {
             else {
                 $("#message").empty().append("Incorrect username or password");
             }
-        });    
+        });  
+}
+function display_recipes (div_id, recipe_list) {
+    
+}
+
+function subscribe_to() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.username = localStorage.getItem("username");
+    $.post("http://159.203.44.151:24200/subscribe_to", JSON.stringify(requestJSON))
+        .done(function(data) {
+            if (JSON.parse(data).success ) {
+                return;
+            }
+            if (JSON.parse(data).error) {
+                console.log(JSON.parse(data).error);
+                return "JSON Error";
+            }
+        });
 }
 function rate_recipe(rating, recipe_id) {
     var requestJSON = new Object();
@@ -233,42 +252,56 @@ function register() {
             }
         });
 }
-//MATTHEW TODO: The Subcribe button .onclick should call this function
-function subscribe_to() {
-    // you had some code for this already. 
-    // get username by localStorage.getItem("current_profile")
-}
 
 
-// DISPLAY AND VIEW FUNCTIONS
-// MATTHEW TODO: make .posts to fill in all the parts of a profile page. See display_recipe_page as an example
-// profile.htm body.onload = display_profile_page()
 function display_profile_page() {
+    get_username();//display nav bar
+
     var requestJSON = new Object();
     requestJSON.username = localStorage.getItem("username");
     $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
         .done(function(data) {
             var object = JSON.parse(data);
-            // you have access to this information now: 
-            //{username, full_name, profile_image, bio, rating, number_of_subscribers, [subscribed_to], [most_used_tags], [favourite_recipes], [authored_recipes]}
-            // fill in $("tags") = "whatever"
-            //$("username").text(localStorage.getItem("username"));
             if (object.username) {
+                if(object.profile_image){
+                    document.getElementById("profilepic").src= object.profile_image;    
+                }
+               for (var i = 1; i <= 5; i++) {
+                    if (object.rating >= i) {
+                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span");
+                    }
+                    else {
+                        $("#profilerat").append("<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>");
+                    }
+                    if(i == 5){
+                        $("#profilerat").append(object.rating);
+                    }
+                }
+                $("#profile_subs").append(object.number_of_subscribers);
+                $("#profile_subed").append(object.subscribed_to.length);
+
+                $("#profile_name").append(object.full_name);
+                $("#profile_userid").append("<a href=\"#\">@"+ object.username +"</a>");
+                $("#profile_bio").append(object.bio);
+
+                for(var i = 0; i < 3; i ++){
+                    $("#profile_tags").append("<li><a href=\"#\">#"+ object.most_used_tags[i] +"</a></li>");
+                }
                 console.log(object);
+                //funciton display recent recipes
+                //funciton display favourite recipes
             }
             if (object.error) {
                 console.log(object.error);
             }
-
         });
 }
 
 // recipe.html body.onload = display_recipe_page()
 function display_recipe_page() {
-    // Request to fill recipe
+    // Request to fill current recipe details
     var requestJSON = new Object();
     requestJSON.recipe_id = localStorage.getItem("recipe_id");
-         //--> Return: {recipe_id, recipe_name, author_username, main_image, rating, num_ratings, prep_time, serving_size,[tags], recipe_text, [comments], views, [ingredients]}
     $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON))
         .done(function(data) {
             var object = JSON.parse(data);
@@ -321,7 +354,6 @@ function display_recipe_page() {
     $.post("http://159.203.44.151:24200/get_recipes", JSON.stringify(requestJSON2))
         .done(function(data) {
             var object = JSON.parse(data);
-
             if (object.error) {
                 console.log(object.error);
                 return object.error;
@@ -349,7 +381,7 @@ function display_recipe_page() {
             }
             $("#related").append(list);
         });
-    // Request to fill #recipe_lists
+    // Request to fill recipe playlists
     var requestJSON3 = new Object();
     requestJSON3.login_id = localStorage.getItem("login_id");
     $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON3))
@@ -376,7 +408,6 @@ function display_recipe_page() {
                             }
                         });
                 }
-                
                 return;
             }
             else {
@@ -391,7 +422,6 @@ function display_recipe_page() {
 // Functions to display pages
 // index.html body.onload = display_index_page()
 function display_index_page() {
-    get_username();
 }
 
 function display_searchpage() {

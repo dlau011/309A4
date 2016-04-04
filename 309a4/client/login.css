@@ -4,14 +4,11 @@ body {
 	padding-bottom: 20px;
 }
 
-.col-md-6 {
-	margin: 0 auto;
-}
-
 #header {
 	color: #e57100;
-	padding-bottom: 20px;
-	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-top: 30px;
+	text-align: center;
 }
 
 .navbar-inverse {
@@ -60,10 +57,18 @@ body {
 #login-button {
 	background-color: #e57100;
 	border-color: #d36800;
+	display: block;
+	margin: 0 auto;
 }
 
 #login-button:active {
 	background-color: #e57100;
 	border-color: #d36800;
 	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
+}
+
+#recipe-form {
+	max-width: 250px;
+	padding: 15px;
+	margin: 0 auto;
 }
