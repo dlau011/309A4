@@ -280,6 +280,8 @@ app.post('/subscribe_to', function (req, res) {
                             if (err){ res.send(makeErrorJSON(err)); }
                         });
 
+                        res.send(makeSuccessJSON());
+
                     } catch (err){
                         res.send(makeErrorJSON("User does not exist.")); // Or invalid login_id.
                     }
