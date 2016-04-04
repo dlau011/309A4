@@ -1,0 +1,74 @@
+body {
+	font-family: Helvetica;
+	padding-top: 50px;
+	padding-bottom: 20px;
+}
+
+#header {
+	color: #e57100;
+	padding-bottom: 10px;
+	padding-top: 30px;
+	text-align: center;
+}
+
+.navbar-inverse {
+	background-color: #ffffff;
+	border-color: #e3e3e3;
+}
+
+.navbar-inverse .navbar-toggle,
+.navbar-inverse .navbar-toggle:focus, 
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #ffffff;
+	border-color: #ffffff;
+}
+
+.navbar-inverse .navbar-toggle .icon-bar {
+	background-color: #000000;
+}
+
+#navbar {
+	padding-bottom: 5px;
+}
+
+#navbar .open a{
+	background-color: #eee;
+}
+
+#navbar a {
+	color: #000000;
+}
+
+#navbar .navbar-form {
+	padding-top: 5px;
+}
+
+#navbar .nav.navbar-nav.navbar-right {
+	padding-top: 5px;
+}
+
+.navbar-header img {
+	margin-top: 5px;
+	padding: 5px;
+	max-width: 175px;
+	max-height: 70px;
+}
+
+#login-button {
+	background-color: #e57100;
+	border-color: #d36800;
+	display: block;
+	margin: 0 auto;
+}
+
+#login-button:active {
+	background-color: #e57100;
+	border-color: #d36800;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
+}
+
+#recipe-form {
+	max-width: 250px;
+	padding: 15px;
+	margin: 0 auto;
+}

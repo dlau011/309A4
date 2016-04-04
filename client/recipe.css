@@ -4,10 +4,26 @@ body {
 	padding-bottom: 20px;
 }
 
+#add-list-button {
+	background-color: #e57100;
+	border-color: #d36800;
+	color: white;
+}
+
+#add-list-button:active {
+	background-color: #e57100;
+	border-color: #d36800;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
+	color: white;
+}
+
 #comments {
 	padding: 10px;
 }
 
+#comment_list {
+	display:none;
+}
 #directions h3 {
 	text-align: center;
 }

@@ -9,6 +9,9 @@
     <meta name="author" content="">
     <!--Logo icon for tab-->
     <link rel="icon" href="favicon.ico">
+      <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="jquery.js"></script>
 
     <title>Cookbook</title>
 
@@ -20,8 +23,7 @@
     <link href="jumbotron.css" rel="stylesheet">
   </head>
 
-  <body>
-
+  <body onload="display_index_page()">
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -34,7 +36,7 @@
           <a a href="index.html" class="pull-left"><img src="img/logo.png"></a>
         </div>
         <!--Navbar Components Start Here-->
-        <div id="navbar" class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse collapse" >
           <!--Search-->
           <form class="navbar-form navbar-left" role="search">
             <div class="form-group">
@@ -47,7 +49,7 @@
             <li><a href="browse.html">Browse</a></li>
             <!--Profile-->
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">chefd00d <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" id="username" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="profile.html">Profile</a></li>
                 <li><a href="#">Settings</a></li>
@@ -116,57 +118,7 @@
             </div>
           </div>
         </div>
-        <div class="col-sm-6 col-md-3" id="food-2">
-          <div class="thumbnail">
-            <img src="img/taco.jpg" alt="...">
-            <div class="caption">
-              <h4>Carne Asada Tacos</h4>
-              <p id="user">by <a href="#">leafylime</a></p>
-              <p>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-                4.3</p>
-              <p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> 2 hours</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-3" id="food-3">
-          <div class="thumbnail">
-            <img src="img/ratatouille.jpg" alt="...">
-            <div class="caption">
-              <h4>Ratatouille</h4>
-              <p id="user">by <a href="#">michelleb</a></p>
-              <p>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-                4.5</p>
-              <p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> 1 hour 15 minutes</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-md-3" id="food-4">
-          <div class="thumbnail">
-            <img src="img/carbonara.jpg" alt="...">
-            <div class="caption">
-              <a href="recipe.html"><h4>Spaghetti Carbonara</h4></a>
-              <p id="user">by <a href="profile.html">chefd00d</a></p>
-              <p>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-                <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-                3.7</p>
-              <p><span class="glyphicon glyphicon-time" aria-hidden="true"></span> 30 minutes</p>
-            </div>
-          </div>
-        </div>
+      
       </div>
 
       <hr>
