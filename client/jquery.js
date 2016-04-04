@@ -126,10 +126,24 @@ function get_username() {
         });
 }
 
-//MATTHEW TODO: The Subcribe button .onclick should call this function
+function display_recipes (div_id, recipe_list) {
+    
+}
+
 function subscribe_to() {
-    // you had some code for this already. 
-    // get username by localStorage.getItem("current_profile")
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.username = localStorage.getItem("username");
+    $.post("http://159.203.44.151:24200/subscribe_to", JSON.stringify(requestJSON))
+        .done(function(data) {
+            if (JSON.parse(data).success ) {
+                return;
+            }
+            if (JSON.parse(data).error) {
+                console.log(JSON.parse(data).error);
+                return "JSON Error";
+            }
+        });
 }
 
 function rate_recipe(rating, recipe_id) {
@@ -182,10 +196,12 @@ function display_profile_page() {
                 $("#profile_userid").append("<a href=\"#\">@"+ object.username +"</a>");
                 $("#profile_bio").append(object.bio);
 
-                for(var i = 0; i < object.most_used_tags.length; i ++){
+                for(var i = 0; i < 3; i ++){
                     $("#profile_tags").append("<li><a href=\"#\">#"+ object.most_used_tags[i] +"</a></li>");
                 }
-
+                console.log(object);
+                //funciton display recent recipes
+                //funciton display favourite recipes
             }
             if (object.error) {
                 console.log(object.error);
