@@ -16,7 +16,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="logintest.css" rel="stylesheet">
+    <link href="login.css" rel="stylesheet">
   </head>
 
   <body>
@@ -65,27 +65,20 @@
 
     <div class="container">
       <div class="row">
-        <div class="col-md-6">
-          <form class="form" method="post" id="recipe_form">
+          <form class="form" method="post" id="recipe-form">
             <div class="form-group row">
-              <label for="username" class="col-sm-2 form-control-label">Username</label>
-              <div class="col-sm-6">
-                <input class="form-control" id="username">
-              </div>
+                <input class="form-control" id="username" placeholder="Username">
             </div>
             <div class="form-group row">
-              <label for="password" class="col-sm-2 form-control-label">Password</label>
-              <div class="col-sm-6">
-                <input type="password" class="form-control" id="password">
-              </div>
+                <input type="password" class="form-control" id="password" placeholder="Password">
             </div>
             <div class="form-group row">
-              <div class="col-sm-offset-2 col-sm-6">
                 <button id="login-button" type="button" class="btn btn-primary" onclick="login()">Login</button>
-              </div>
+            </div>
+            <div class="form-group row">
+              <p>Don't have an account? Register <a href="register.html">here.</a></p>
             </div>
           </form>
-        </div>
       </div>
     </div> <!-- /container -->
 
