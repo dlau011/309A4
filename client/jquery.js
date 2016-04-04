@@ -152,26 +152,43 @@ function rate_recipe(rating, recipe_id) {
         });
 }
 
-// MATTHEW TODO: make .posts to fill in all the parts of a profile page. See display_recipe_page as an example
-// profile.htm body.onload = display_profile_page()
 function display_profile_page() {
+    get_username();//display nav bar
+
     var requestJSON = new Object();
     requestJSON.username = localStorage.getItem("username");
     $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
         .done(function(data) {
             var object = JSON.parse(data);
-            // you have access to this information now: 
-            //{username, full_name, profile_image, bio, rating, number_of_subscribers, [subscribed_to], [most_used_tags], [favourite_recipes], [authored_recipes]}
-            // fill in $("tags") = "whatever"
-            //$("username").text(localStorage.getItem("username"));
             if (object.username) {
-                console.log(object);
+                if(object.profile_image){
+                    document.getElementById("profilepic").src= object.profile_image;    
+                }
+               for (var i = 1; i <= 5; i++) {
+                    if (object.rating >= i) {
+                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span");
+                    }
+                    else {
+                        $("#profilerat").append("<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>");
+                    }
+                    if(i == 5){
+                        $("#profilerat").append(object.rating);
+                    }
+                }
+                $("#profile_subs").append(object.number_of_subscribers);
+                $("#profile_subed").append(object.subscribed_to.length);
+
+                $("#profile_name").append(object.full_name);
+                $("#profile_userid").append("<a href=\"#\">@"+ object.username +"</a>");
+                $("#profile_bio").append(object.bio);
+
+                for(var i = 0; i < object.most_used_tags.length; i ++){
+                    $("#profile_tags").append("<li><a href=\"#\">#"+ object.most_used_tags[i] +"</a></li>");
+                }
+
             }
             if (object.error) {
                 console.log(object.error);
-            }
-            else {
-                console.log("EOF");
             }
         });
 }
@@ -255,6 +272,7 @@ function display_recipe_page() {
 // index.html body.onload = display_index_page()
 function display_index_page() {
     //$("#username").text(localStorage.getItem("username"));
+    get_username();
 }
 
 // any time you click on a recipe, call this function
