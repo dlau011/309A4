@@ -497,19 +497,22 @@ function display_index_page() {
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
-function display_searchpage(current_search) {
+function display_searchpage() {
     if (localStorage.getItem("login_id") == null) {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
     display_username();
+    display_recipe_search(resrse)
  
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
-function view_search(current_search) {
+function view_search() {
+    var current_search = $("#searchbar").val();
     localStorage.setItem("current_search", current_search);
     location.href="searchpage.html";
+
 }
 function view_recipe(recipe_id) {
     localStorage.setItem("recipe_id", recipe_id);
