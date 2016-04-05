@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--Logo icon for tab-->
+    <link rel="icon" href="favicon.ico">
+
+    <title>Browse Recipes</title>
+
+    <!-- Bootstrap core CSS -->
+    <!--May need to change link again-->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="browse.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a a href="index.html" class="pull-left"><img src="img/logo.png"></a>
+        </div>
+        <!--Navbar Components Start Here-->
+        <div id="navbar" class="navbar-collapse collapse">
+          <!--Search-->
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Search">
+            </div>
+            <a href="searchpage.html" class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></a>
+          </form>
+          <ul class="nav navbar-nav navbar-right">
+            <!--Browse-->
+            <li><a href="browse.html">Browse</a></li>
+            <!--Create Recipe-->
+            <li><a href="create_recipe.html">Create Recipe</a></li>
+            <!--Profile-->
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">chefd00d <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a onclick="view_self_profile()">Profile</a></li>
+                <li><a href="settings.html">Settings</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a onclick="logout()">Logout</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <div id="header" class="row">
+        <h3>Browse Recipes</h3>
+      </div>
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div id="section-header" class="col-md-6">
+          <h4>Cuisine</h4>
+        </div>
+        <div class="col-md-3"></div>
+      </div>
+        <div id="cuisine" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">American</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Chinese</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Indian</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div id="cuisine" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Italian</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Japanese</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Korean</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div id="cuisine" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Lebanese</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Malaysian</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">more...</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+    </div><!--/container-->
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div id="section-header" class="col-md-6">
+          <h4>Mealtime</h4>
+        </div>
+        <div class="col-md-3"></div>
+      </div>
+        <div id="mealtime" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Afternoon Tea</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Breakfast</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Dessert</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div id="mealtime" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Dinner</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Lunch</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Snack</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+    </div><!--/container-->
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div id="section-header" class="col-md-6">
+          <h4>Dietary Restrictions</h4>
+        </div>
+        <div class="col-md-3"></div>
+      </div>
+        <div id="diet" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Gluten Free</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Halal</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Kosher</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div id="diet" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Low Calorie</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Nut Free</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Sugarless</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div id="diet" class="row">
+          <div class="col-md-3">
+          </div>
+          <a href="">
+            <div class="col-md-2">Vegan</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Vegetarian</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">more...</div>
+          </a>
+          <div class="col-md-3">
+          </div>
+        </div>
+    </div><!--/container-->
+
+        <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="jquery.js"></script>
+  </body>
+</html>
