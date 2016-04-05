@@ -92,6 +92,7 @@
                   <li role="separator" class="divider"></li>
                   <li><a href="#" onclick="create_recipe_playlist()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Recipe List</a></li>
                </ul>
+               <p id="creation_alert"></p>
             </div>
           </div>
             <div class="col-md-3"></div>
@@ -106,7 +107,7 @@
          </div>
          <div id="end" class="row">
             <div id="comments" class="col-md-6">
-               <p><a onclick="toggle_comments()">Comments <span class="badge" id="num_comments"></span></a></p>
+               <p><a onclick="toggle('comment_list')">Comments <span class="badge" id="num_comments"></span></a></p>
                <p id="tags">Tags: </p>
                <textarea class="longInput" id="comment" value="" rows="7" cols="60"></textarea>
                <input type="button" onclick="add_comment()" value="Comment">
