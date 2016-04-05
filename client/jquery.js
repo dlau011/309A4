@@ -88,6 +88,7 @@ function create_recipe() {
             var recipe_id = JSON.parse(data).recipe_id;
             if (recipe_id) { 
                 console.log(recipe_id);
+                view_recipe(recipe_id);
                 return recipe_id;
             }
             else {
@@ -287,7 +288,7 @@ function display_profile_page() {
                 for(var i = 0; i < 3; i ++){
                     $("#profile_tags").append("<li><a href=\"#\">#"+ object.most_used_tags[i] +"</a></li>");
                 }
-                console.log(object);
+                //console.log(object);
                 //funciton display recent recipes
                 //funciton display favourite recipes
             }
@@ -364,7 +365,7 @@ function display_recipe_page() {
                 list += 
                     "<div class='col-sm-6 col-md-3'><div class='thumbnail'>" +
                     "<img src='" + object[i].main_image + "' alt='...' class='img-rounded'>" +
-                    "<div class='caption'><h4>" + object[i].recipe_name + "</h4>" +
+                    "<div class='caption'><h4><a onclick=view_recipe(\"" + object[i].recipe_id + "\")>" + object[i].recipe_name + "</a></h4>" +
                     "<p>by <a onclick=view_profile(\"" + object[i].author_username + "\")>" + object[i].author_username +"</a></p><p>";
                 for (j = 1; j <= 5; j++) {
                     // rating = 0? rating = 1? rating = 3.5? rating = 3.7?
@@ -442,7 +443,29 @@ function view_profile(username) {
     localStorage.setItem("username", username);
     location.href = "profile.html";
 }
+function view_self_profile() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_logged_in_username", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var username = JSON.parse(data).username;
+            if (username) {
+                // whenever something needs username filled in, do it here
+                localStorage.setItem("username", username);
+                location.href = "profile.html";
+                return username;
+            }
+            if (JSON.parse(data).error) {
+                console.log(JSON.parse(data).error);
+                return "JSON Error";
+            }
+            else {
+                return "User Not Found";
+            }
 
+        });
+
+}
 // any time you go to the index page, call this function
 function view_index_page() {
     location.href = "index.html";
