@@ -270,8 +270,12 @@ app.post('/subscribe_to', function (req, res) {
                 User.findOne({username: req.body.username}, function (err, other_user){
                     try {
 
-                        current_user.subscriptions.push(other_user.username);
-                        other_user.subscribers.push(current_user.username);
+                        if (current_user.subscriptions.indexOf(other_user.username) < 0){
+                            current_user.subscriptions.push(other_user.username);
+                        }
+                        if (other_user.subscribers.indexOf(current_user.username) < 0){
+                            other_user.subscribers.push(current_user.username);
+                        }
 
                         current_user.save(function(err){
                             if (err){ res.send(makeErrorJSON(err)); }
@@ -563,11 +567,11 @@ app.post('/add_comment', function (req, res) {
                     recipe.comments.push({"author_username": user.username,
                         "comment_text": req.body.comment_text});
                     recipe.save(function(err){
-                        if (err){ res.send(makeErrorJSON("here2")); }
+                        if (err){ res.send(makeErrorJSON(err)); }
                         else { res.send(makeSuccessJSON()); }
                     });
                 } catch (err) {
-                    res.send(makeErrorJSON("here"));
+                    res.send(makeErrorJSON(err));
                 }
             });
         });
@@ -575,7 +579,7 @@ app.post('/add_comment', function (req, res) {
         res.send(makeErrorJSON("Invalid request."));
     }
     } catch (err){
-    res.send(makeErrorJSON("here3"));
+    res.send(makeErrorJSON(err));
     }
 });
 
@@ -653,6 +657,112 @@ app.post('/add_recipe', function (req, res) {
                 }
             });
 
+        } else {
+            res.send(makeErrorJSON("Invalid request."));
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
+});
+
+
+/*
+    Delete the recipe given by recipe_id that is owned by the current user specified
+    by login_id. If the current user does not own the recipe an error will be returned.
+    --> Input: recipe_id, login_id
+    --> Return: {"success": True} on success, or an error on failure.
+*/
+app.post('/delete_recipe', function(req, res){
+    try {
+        if (req.body.recipe_id != undefined && req.body.login_id != undefined){
+            User.findOne({login_id: req.body.login_id}, function (err, user){
+                Recipe.findOne({recipe_id: req.body.recipe_id}, function (err, recipe){
+                    try {
+                        if (recipe.author_username != user.username){
+                            res.send(makeErrorJSON("Permission error: current user does not own the recipe specified."));    
+                        } else {
+                            // Remove the recipe from associated playlists:
+                            RecipePlaylist.find({recipes: {$in: [req.body.recipe_id]}}, function (err, recipePlaylists){
+                                try {
+                                    for (var i = 0; i < recipePlaylists.length; i++){
+                                        var index = recipePlaylists[i].recipes.indexOf(req.body.recipe_id)
+                                        if (index > -1){
+                                            recipePlaylists[i].recipes.splice(index, 1)
+                                            recipePlaylists[i].save(function(err){
+                                                if (err){ res.send(makeErrorJSON(err)); }
+                                            });
+                                        }
+                                    }
+                                } catch (err){}
+
+                                // Remove from user's authored recipes:
+                                var index = user.authored_recipes.indexOf(req.body.recipe_id)
+                                if (index > -1){
+                                    user.authored_recipes.splice(index, 1)
+                                }
+                                user.save(function(err){
+                                    if (err){ res.send(makeErrorJSON(err)); }
+                                })
+
+                                // Remove the recipe:
+                                recipe.remove(function(err){
+                                    if (err){ res.send(makeErrorJSON(err)); }
+                                });
+
+                                res.send(makeSuccessJSON());
+
+                            });
+                        }
+                    } catch (err) {
+                        res.send(makeErrorJSON("User or recipe does not exist."));
+                    }
+                });
+            });
+        } else {
+            res.send(makeErrorJSON("Invalid request."));
+        }
+    } catch (err){
+        res.send(makeErrorJSON(err));
+    }
+});
+
+/*
+    Delete the recipe playlist given by recipe_playlist_id that is owned by the current user specified
+    by login_id. If the current user does not own the recipe playlist, an error will be returned.
+    --> Input: recipe_playlist_id, login_id
+    --> Return: {"success": True} on success, or an error on failure.
+*/
+app.post('/delete_recipe_playlist', function(req, res){
+    try {
+        if (req.body.recipe_playlist_id != undefined && req.body.login_id != undefined){
+            User.findOne({login_id: req.body.login_id}, function(err, user){
+                RecipePlaylist.findOne({recipe_playlist_id: req.body.recipe_playlist_id}, function(err, playlist){
+                    try {
+                        if (user.recipe_playlists.indexOf(playlist.recipe_playlist_id) > -1){
+
+                            // Remove the playlist from the user:
+                            var index = user.recipe_playlists.indexOf(req.body.recipe_playlist_id)
+                            if (index > -1){
+                                user.recipe_playlists.splice(index, 1)
+                            }
+                            user.save(function(err){
+                                if (err){ res.send(makeErrorJSON(err)); }
+                            })
+
+                            // Remove the playlist itself.
+                            playlist.remove(function(err){
+                                if (err){ res.send(makeErrorJSON(err)); }
+                            });
+
+                            res.send(makeSuccessJSON());
+                        } else {
+                            res.send(makeErrorJSON("Permission error: current user does not own the recipe playlist specified."));    
+                        }
+                    } catch (err){
+                        res.send(makeErrorJSON("User or recipe playlist does not exist."));   
+                    }
+                });
+            });
         } else {
             res.send(makeErrorJSON("Invalid request."));
         }
