@@ -701,6 +701,7 @@ function display_profile_page() {
     display_profile_detail();
     display_recipe_search("recent","MOST_RECENT", 4, 1, "", [], "", localStorage.getItem("username"));
     display_recipe_playlists();
+
 }
 // MAIN FUNCTION TO DISPLAY RECIPE PAGE
 function display_recipe_page() {
@@ -713,6 +714,9 @@ function display_recipe_page() {
     display_recipe_playlists_dropdown();
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
+
+    display_delete_button();///
+
 }
 
 // MAIN FUNCTION TO DISPLAY INDEX PAGE
@@ -787,21 +791,41 @@ function view_index_page() {
     location.href = "index.html";
 }
 
-
-//havent test yet
-function delete_recipe (recipe_id) {
+function display_delete_button() {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
-    requestJSON.recipe_id = recipe_id;
-    $.post("http://159.203.44.151:24200/delete_recipe", JSON.stringify(requestJSON))
+    $.post("http://159.203.44.151:24200/get_logged_in_username", JSON.stringify(requestJSON))
         .done(function(data) {
-            var object = JSON.parse(data).success;
+            var object = JSON.parse(data).username;
             if(object.error){
                 return "JSON Error";
             }
+            
+            if(object){
+                if(object == localStorage.getItem("username")){
+                    $("#delete_recipe_button").append("<button class=\"btn btn-primary\" type=\"button\" id=\"delete-button\" onclick=delete_recipe()>Delete Recipe</button>");
+                }
+            }
+            
+
+
+        });
+}
+
+function delete_recipe () {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.recipe_id = localStorage.getItem("recipe_id");
+    $.post("http://159.203.44.151:24200/delete_recipe", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data).success;
             if(object){
                 return "delete_recipe success";
             }
+            if(object.error){
+                return "JSON Error";
+            }
+
         });
 
 }
