@@ -4,13 +4,18 @@ body {
 	padding-bottom: 20px;
 }
 
-#add-list-button {
+#add-list-button, #delete-button {
 	background-color: #e57100;
 	border-color: #d36800;
 	color: white;
 }
 
-#add-list-button:active {
+#delete_recipe_button {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+#add-list-button:active, #delete-button:active {
 	background-color: #e57100;
 	border-color: #d36800;
 	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
