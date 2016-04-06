@@ -632,17 +632,6 @@ function display_profile_detail() {
                 if(object.profile_image){
                     document.getElementById("profilepic").src= object.profile_image;    
                 }
-                for (var i = 1; i <= 5; i++) {
-                    if (object.rating >= i) {
-                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span>");
-                    }
-                    else {
-                        $("#profilerat").append("<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>");
-                    }
-                    if(i == 5){
-                        $("#profilerat").append(object.rating);
-                    }
-                }
                 $("#profile_subs").append(object.number_of_subscribers);
                 $("#profile_subed").append(object.subscribed_to.length);
 
