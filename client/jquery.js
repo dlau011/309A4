@@ -782,6 +782,43 @@ function view_self_profile() {
 function view_index_page() {
     location.href = "index.html";
 }
+
+
+//havent test yet
+function delete_recipe (recipe_id) {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.recipe_id = recipe_id;
+    $.post("http://159.203.44.151:24200/delete_recipe", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data).success;
+            if(object.error){
+                return "JSON Error";
+            }
+            if(object){
+                return "delete_recipe success";
+            }
+        });
+
+}
+//havent test yet
+function delete_recipe_playlist (recipe_playlist_id) {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.recipe_playlist_id = recipe_playlist_id;
+    $.post("http://159.203.44.151:24200/delete_recipe", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data).success;
+            if(object.error){
+                return "JSON Error";
+            }
+            if(object){
+                return "delete_recipe_playlist success";
+            }
+
+        });
+
+}
 // ------------------------------------------------------------------------------
 
 // hashes a password
