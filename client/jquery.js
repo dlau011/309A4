@@ -54,6 +54,78 @@ function add_recipe_to_playlist(playlist_id) {
             }
         });
 }
+
+function change_bio() {
+    $("#changebio_status").empty();
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.new_bio = $("#settings-bio").val();
+    $.post("http://159.203.44.151:24200/change_bio", JSON.stringify(requestJSON))
+        .done(function(data) {
+            if (JSON.parse(data).success) {
+                $("#changebio_status").empty().append("Profile bio changed.");
+                return;
+            }
+            else if (JSON.parse(data).error) {
+                $("#changebio_status").empty().append("Profile bio change failed.");
+            }
+        });
+
+}
+
+function change_password() {
+    $("#password_match").empty();
+    $("#password_status").empty();
+    $("#old_match").empty();
+    var new_pw = $("#settings-new-pw").val();
+    var check = $("#settings-pw-check").val();
+    // Check if new passwords entered match
+    if (check != new_pw) {
+        $("#password_match").empty().append("These passwords don't match.")
+        return;
+    }
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    var hashed_old = hash($("#settings-old-pw").val());
+    var hashed_new = hash($("#settings-new-pw").val());
+    requestJSON.old_hashed_password = hashed_old;
+    requestJSON.new_hashed_password = hashed_new;
+    $.post("http://159.203.44.151:24200/change_password", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data)
+            if (JSON.parse(data).success) {
+                $("#password_status").empty().append("Password changed.");
+                return;
+            } 
+            else if (JSON.parse(data).error) {
+                if (object.error = "Incorrect password.") {
+                    $("#old_match").empty().append("Incorrect old password.");
+                    return;
+                }
+                else {
+                    $("#password_status").empty().append("Password change failed.");
+                }
+            }
+        });
+}
+
+function change_profile_image() {
+    $("#changepic_status").empty();
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.new_image = $("#settings-picture").val();
+    $.post("http://159.203.44.151:24200/change_profile_image", JSON.stringify(requestJSON))
+        .done(function(data) {
+            if (JSON.parse(data).success) {
+                $("#changepic_status").empty().append("Profile picture changed.");
+                return;
+            }
+            else if (JSON.parse(data).error) {
+                $("#changepic_status").empty().append("Profile picture change failed.");
+            }
+        });
+}
+
 function create_recipe() {
     var requestJSON = new Object();
     // Handle tags input

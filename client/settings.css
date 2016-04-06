@@ -1,0 +1,71 @@
+body {
+	font-family: Helvetica;
+	padding-top: 50px;
+	padding-bottom: 20px;
+}
+
+#header {
+	color: #e57100;
+	padding-bottom: 20px;
+	padding-top: 10px;
+	text-align: center;
+}
+
+h4 {
+	text-align: center;
+	padding: 10px;
+}
+
+.navbar-inverse {
+	background-color: #ffffff;
+	border-color: #e3e3e3;
+}
+
+.navbar-inverse .navbar-toggle,
+.navbar-inverse .navbar-toggle:focus, 
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #ffffff;
+	border-color: #ffffff;
+}
+
+.navbar-inverse .navbar-toggle .icon-bar {
+	background-color: #000000;
+}
+
+#navbar {
+	padding-bottom: 5px;
+}
+
+#navbar .open a{
+	background-color: white;
+}
+
+#navbar a {
+	color: #000000;
+}
+
+#navbar .navbar-form {
+	padding-top: 5px;
+}
+
+#navbar .nav.navbar-nav.navbar-right {
+	padding-top: 5px;
+}
+
+.navbar-header img {
+	margin-top: 5px;
+	padding: 5px;
+	max-width: 175px;
+	max-height: 70px;
+}
+
+#changepw-button, #changepic-button, #changebio-button {
+	background-color: #e57100;
+	border-color: #d36800;
+}
+
+#changepw-button:active, #changepic-button:active, #changebio-button:active {
+	background-color: #e57100;
+	border-color: #d36800;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
+}
