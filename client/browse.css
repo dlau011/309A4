@@ -4,6 +4,10 @@ body {
 	padding-bottom: 20px;
 }
 
+.col-md-2 {
+	cursor: pointer;
+}
+
 .container {
 	padding: 10px;
 }
