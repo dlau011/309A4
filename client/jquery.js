@@ -488,7 +488,6 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
         });
 }
 
-<<<<<<< HEAD
 function display_subscriptions() {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
@@ -510,8 +509,6 @@ function display_subscriptions() {
             }
         });
 }
-=======
->>>>>>> parent of 3558686... all functions working currently
 
 function delete_recipe_playlist(playlist_id) {
     var requestJSON = new Object();
@@ -764,13 +761,10 @@ function display_index_page() {
         location.href="login.html";
     }
     display_username();
-<<<<<<< HEAD
     display_recipe_search("recommended1", "MOST_RECENT", 4, 1, "", [], "", "", localStorage.getItem("login_id"));
     display_recipe_search("recommended2", "MOST_RECENT", 4, 2, "", [], "", "", localStorage.getItem("login_id"));
     display_subscriptions();
     display_featured_recipe("1459920783059-13937");
-=======
->>>>>>> parent of 3558686... all functions working currently
 }
 
 function get_max_pages() {
