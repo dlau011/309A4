@@ -739,14 +739,18 @@ function display_searchpage() {
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
-function view_search() {
-    var current_search = $("#searchbar").val();
-    if(current_search != ""){
-        localStorage.setItem("current_search", current_search);
-        location.href="searchpage.html";
+function view_search(search="") {
+    var current_search;
+    if (search != "") {
+        current_search == $("#searchbar").val();
     }
-
+    else {
+        current_search = search;
+    }
+    localStorage.setItem("current_search", current_search);
+    location.href="searchpage.html";
 }
+
 function view_recipe(recipe_id) {
     localStorage.setItem("recipe_id", recipe_id);
     location.href="recipe.html";
