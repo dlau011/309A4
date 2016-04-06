@@ -9,6 +9,13 @@ $(document).ready(function() {
             login();
         }
     });
+    $("#searchbar").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            view_search();
+        }
+    })
+
 });
 
 function add_comment() {
@@ -401,6 +408,7 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
                 return object.error;
             }
             var list = "";
+            localStorage.setItem("number_of_results",object.length);
             for (i = 0; i < object.length; i++) {
                 var recipe_id = "\"" + object[i].recipe_id + "\"";
                 list += 
@@ -425,6 +433,7 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
             $("#"+div_id).append(list);
         });
 }
+
 
 function delete_recipe_playlist(playlist_id) {
     var requestJSON = new Object();
@@ -666,22 +675,53 @@ function display_index_page() {
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
+
+function  get_max_pages () {
+    var recipes_each_page = 48;
+    var num = localStorage.getItem("number_of_results");
+    console.log(num);
+    return Math.ceil(num/recipes_each_page);
+}
+function display_one_page(){
+    var num_page = 1;
+    var keyword = localStorage.getItem("current_search");
+    var recipes_each_page = 48;
+    display_recipe_search("searchresult","MOST_RECENT",recipes_each_page,num_page,keyword);
+    //change this after !!!!!!!!!!!!>>>>>>>>>>>>>>>>>>
+
+}
+
+function display_page_number () {
+    $("#searchpage_page_number").append('<nav> <ul class="pagination">');
+    $("#searchpage_page_number").append("<li>");
+    for ( var i = 1; i <= get_max_pages(); i++){
+        $("#right_arrow").before("<li><a onclick='display_one_searchpage(" + i + ")' >" + i +"</a></li>");
+    }
+    $("#searchpage_page_number").append("</ul> <nav>");
+}
+function display_one_searchpage (current_page) {
+    localStorage.setItem("current_page",current_page);
+    display_searchpage();
+}
+// MAIN FUNCTION TO DISPLAY SEARCH PAGE
 function display_searchpage() {
     if (localStorage.getItem("login_id") == null) {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
-    
     display_username();
-    display_recipe_search(resrse)
- 
+    display_page_number();  
+    display_one_page(); 
+
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
 function view_search() {
     var current_search = $("#searchbar").val();
-    localStorage.setItem("current_search", current_search);
-    location.href="searchpage.html";
+    if(current_search != ""){
+        localStorage.setItem("current_search", current_search);
+        location.href="searchpage.html";
+    }
 
 }
 function view_recipe(recipe_id) {
