@@ -234,15 +234,9 @@ function login() {
 }
 
 function logout() {
-    var login_id = localStorage.getItem("login_id");
-    var username = localStorage.getItem("username");
-    var recipe_id = localStorage.getItem("recipe_id");
-    localStorage.removeItem(login_id);
-    localStorage.removeItem(username);
-    localStorage.removeItem(recipe_id);
-    console.log(login_id);
-    console.log(username);
-    console.log(recipe_id);
+    localStorage.removeItem("login_id");
+    localStorage.removeItem("username");
+    localStorage.removeItem("recipe_id");
     location.href = "login.html"; 
 }
 
