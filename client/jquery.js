@@ -15,6 +15,7 @@ $(document).ready(function() {
             view_search();
         }
     });
+});
 
 function add_comment() {
     //recipe_id login_id comment_text
@@ -59,78 +60,6 @@ function add_recipe_to_playlist(playlist_id) {
             }
         });
 }
-
-function change_bio() {
-    $("#changebio_status").empty();
-    var requestJSON = new Object();
-    requestJSON.login_id = localStorage.getItem("login_id");
-    requestJSON.new_bio = $("#settings-bio").val();
-    $.post("http://159.203.44.151:24200/change_bio", JSON.stringify(requestJSON))
-        .done(function(data) {
-            if (JSON.parse(data).success) {
-                $("#changebio_status").empty().append("Profile bio changed.");
-                return;
-            }
-            else if (JSON.parse(data).error) {
-                $("#changebio_status").empty().append("Profile bio change failed.");
-            }
-        });
-
-}
-
-function change_password() {
-    $("#password_match").empty();
-    $("#password_status").empty();
-    $("#old_match").empty();
-    var new_pw = $("#settings-new-pw").val();
-    var check = $("#settings-pw-check").val();
-    // Check if new passwords entered match
-    if (check != new_pw) {
-        $("#password_match").empty().append("These passwords don't match.")
-        return;
-    }
-    var requestJSON = new Object();
-    requestJSON.login_id = localStorage.getItem("login_id");
-    var hashed_old = hash($("#settings-old-pw").val());
-    var hashed_new = hash($("#settings-new-pw").val());
-    requestJSON.old_hashed_password = hashed_old;
-    requestJSON.new_hashed_password = hashed_new;
-    $.post("http://159.203.44.151:24200/change_password", JSON.stringify(requestJSON))
-        .done(function(data) {
-            var object = JSON.parse(data)
-            if (JSON.parse(data).success) {
-                $("#password_status").empty().append("Password changed.");
-                return;
-            } 
-            else if (JSON.parse(data).error) {
-                if (object.error = "Incorrect password.") {
-                    $("#old_match").empty().append("Incorrect old password.");
-                    return;
-                }
-                else {
-                    $("#password_status").empty().append("Password change failed.");
-                }
-            }
-        });
-}
-
-function change_profile_image() {
-    $("#changepic_status").empty();
-    var requestJSON = new Object();
-    requestJSON.login_id = localStorage.getItem("login_id");
-    requestJSON.new_image = $("#settings-picture").val();
-    $.post("http://159.203.44.151:24200/change_profile_image", JSON.stringify(requestJSON))
-        .done(function(data) {
-            if (JSON.parse(data).success) {
-                $("#changepic_status").empty().append("Profile picture changed.");
-                return;
-            }
-            else if (JSON.parse(data).error) {
-                $("#changepic_status").empty().append("Profile picture change failed.");
-            }
-        });
-}
-
 function create_recipe() {
     var requestJSON = new Object();
     // Handle tags input
@@ -239,9 +168,15 @@ function login() {
 }
 
 function logout() {
-    localStorage.removeItem("login_id");
-    localStorage.removeItem("username");
-    localStorage.removeItem("recipe_id");
+    var login_id = localStorage.getItem("login_id");
+    var username = localStorage.getItem("username");
+    var recipe_id = localStorage.getItem("recipe_id");
+    localStorage.removeItem(login_id);
+    localStorage.removeItem(username);
+    localStorage.removeItem(recipe_id);
+    console.log(login_id);
+    console.log(username);
+    console.log(recipe_id);
     location.href = "login.html"; 
 }
 
@@ -325,7 +260,6 @@ function display_subscriptions() {
                 console.log(object.error);
                 return;
             }
-            console.log(object);
             // given user's subscriptions
             if (object.username) {
                 for (i = 0; i < object.subscribed_to.length; i++) {
@@ -443,7 +377,6 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
                 return object.error;
             }
             var list = "";
-            localStorage.setItem("number_of_results",object.length);
             for (i = 0; i < object.length; i++) {
                 var recipe_id = "\"" + object[i].recipe_id + "\"";
                 list += 
@@ -468,7 +401,6 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
             $("#"+div_id).append(list);
         });
 }
-
 
 function delete_recipe_playlist(playlist_id) {
     var requestJSON = new Object();
@@ -712,43 +644,12 @@ function display_index_page() {
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
-
-function  get_max_pages () {
-    var recipes_each_page = 48;
-    var num = localStorage.getItem("number_of_results");
-    console.log(num);
-    return Math.ceil(num/recipes_each_page);
-}
-function display_one_page(){
-    var num_page = 1;
-    var keyword = localStorage.getItem("current_search");
-    var recipes_each_page = 48;
-    display_recipe_search("searchresult","MOST_RECENT",recipes_each_page,num_page,keyword);
-    //change this after !!!!!!!!!!!!>>>>>>>>>>>>>>>>>>
-
-}
-
-function display_page_number () {
-    $("#searchpage_page_number").append('<nav> <ul class="pagination">');
-    $("#searchpage_page_number").append("<li>");
-    for ( var i = 1; i <= get_max_pages(); i++){
-        $("#right_arrow").before("<li><a onclick='display_one_searchpage(" + i + ")' >" + i +"</a></li>");
-    }
-    $("#searchpage_page_number").append("</ul> <nav>");
-}
-function display_one_searchpage (current_page) {
-    localStorage.setItem("current_page",current_page);
-    display_searchpage();
-}
-// MAIN FUNCTION TO DISPLAY SEARCH PAGE
 function display_searchpage() {
     if (localStorage.getItem("login_id") == null) {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
     display_username();
-    display_page_number();  
-    display_one_page(); 
     
 }
 
@@ -762,8 +663,9 @@ function view_search(search="") {
         current_search = search;
     }
     localStorage.setItem("current_search", current_search);
-}
+    location.href="searchpage.html";
 
+}
 function view_recipe(recipe_id) {
     localStorage.setItem("recipe_id", recipe_id);
     location.href="recipe.html";
