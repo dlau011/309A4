@@ -715,7 +715,7 @@ function display_recipe_page() {
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
 
-    display_delete_button();///
+    display_delete_button();
 
 }
 
@@ -741,7 +741,10 @@ function display_searchpage() {
     display_one_page(); 
 
 }
-
+function display_setting_page () {
+    display_username();
+    display_delete_playlist_button();
+}
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
 function view_search(search="") {
     var current_search;
@@ -757,7 +760,6 @@ function view_search(search="") {
 
 function view_recipe(recipe_id) {
     localStorage.setItem("recipe_id", recipe_id);
-    location.href="recipe.html";
 }
 
 function view_profile(username) {
@@ -806,9 +808,6 @@ function display_delete_button() {
                     $("#delete_recipe_button").append("<button class=\"btn btn-primary\" type=\"button\" id=\"delete-button\" onclick=delete_recipe()>Delete Recipe</button>");
                 }
             }
-            
-
-
         });
 }
 
@@ -831,24 +830,62 @@ function delete_recipe () {
 
 
 }
-//havent test yet
-function delete_recipe_playlist (recipe_playlist_id) {
+
+function display_delete_playlist_button (recipe_playlist_id) {
+    //display all the playlist 
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
-    requestJSON.recipe_playlist_id = recipe_playlist_id;
-    $.post("http://159.203.44.151:24200/delete_recipe", JSON.stringify(requestJSON))
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
         .done(function(data) {
-            var object = JSON.parse(data).success;
+            var object = JSON.parse(data);
+            if(object){
+                console.log(object);
+                for (var i = 0; i < object.recipe_playlists.length; i++) {
+                    //>>>>>>> change here TO Becky
+                    console.log(" recipe playlist id is "+object.recipe_playlists[i]);
+                    
+                    var requestJSON = new Object();
+                    requestJSON.recipe_playlist_id = object.recipe_playlists[i];
+                    $.post("http://159.203.44.151:24200/get_recipe_playlist", JSON.stringify(requestJSON))
+                        .done(function(data) {
+                            var recipe_playlist_name  = JSON.parse(data);
+                            if(recipe_playlist_name){
+                                    //>>>>>>> change here TO Becky
+                                    console.log(" recipe playlist name is "+recipe_playlist_name.recipe_playlist_name);                            }
+                            
+                            if(recipe_playlist_name.error) {
+                                return "JSON Error";
+                            }
+                        });
+                    
+
+                };
+            }
             if(object.error){
                 return "JSON Error";
             }
-            if(object){
-                return "delete_recipe_playlist success";
+        });
+
+    delete_playlist_button(recipe_playlist_id);
+}
+function delete_playlist_button (recipe_playlist_id) {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.recipe_playlist_id = recipe_playlist_id;
+    $.post("http://159.203.44.151:24200/delete_recipe_playlist", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if(object.success){
+                location.href="recipe.html";
+            }
+            if(object.error){
+                return "JSON Error";
             }
 
         });
 
 }
+
 // ------------------------------------------------------------------------------
 
 // hashes a password
