@@ -4,35 +4,66 @@ body {
 	padding-bottom: 20px;
 }
 
+#add-list-button {
+	background-color: #e57100;
+	border-color: #d36800;
+	color: white;
+}
+
+#add-list-button:active {
+	background-color: #e57100;
+	border-color: #d36800;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
+	color: white;
+}
+
+#comments {
+	padding: 10px;
+}
+
+#comment_list {
+	display:none;
+}
+#directions h3 {
+	text-align: center;
+}
+
+#directions img, #directions p {
+	padding: 10px;
+}
+
+#end {
+	padding: 10px;
+	text-align: left;
+}
+
+#end-title h3 {
+	color: #e57100;
+}
+
 .glyphicon-star, .glyphicon-star-empty {
 	color: #e57100;
 }
 
-#most-popular {
+#header {
+	text-align: center;
 	padding: 10px;
 }
 
-#most-popular h4 {
-	color: #e57100;
-	text-align: center;
-}
-
-.nav-pills {
-	display: flex;
-    justify-content: center;
-}
-
-.nav-pills li.active a {
-	background-color: #e57100;
-}
-
-.nav-pills li>a {
+#header h3 {
 	color: #e57100;
 }
 
-#nav-pills {
-	padding-top: 0px;
-	padding-bottom: 20px;
+h3 {
+	color: #00cd15;
+}
+
+.jumbotron {
+	background: url("img/carbonara.jpg") no-repeat center;
+	background-size: cover;
+	margin-bottom: 0px;
+	min-height: 250px;
+	min-width: 500px;
 }
 
 .navbar-inverse {
@@ -78,6 +109,14 @@ body {
 	max-height: 70px;
 }
 
+#ratings {
+	text-align: right;
+}
+
+#related {
+	padding: 10px;
+}
+
 .thumbnail {
 	box-shadow: 0 0 2px 1px #f2f2f2;
 	border: solid 1px #e6e6e6;
@@ -102,10 +141,4 @@ body {
 
 .thumbnail p {
 	text-align: center;
-}
-
-#results {
-	text-align: center;
-	padding-top: 20px;
-	color: #6f6f6f;
 }

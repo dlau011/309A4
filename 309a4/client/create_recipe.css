@@ -4,35 +4,16 @@ body {
 	padding-bottom: 20px;
 }
 
-.glyphicon-star, .glyphicon-star-empty {
+#header {
 	color: #e57100;
-}
-
-#most-popular {
-	padding: 10px;
-}
-
-#most-popular h4 {
-	color: #e57100;
+	padding-bottom: 20px;
+	padding-top: 10px;
 	text-align: center;
 }
 
-.nav-pills {
-	display: flex;
-    justify-content: center;
-}
-
-.nav-pills li.active a {
-	background-color: #e57100;
-}
-
-.nav-pills li>a {
-	color: #e57100;
-}
-
-#nav-pills {
-	padding-top: 0px;
-	padding-bottom: 20px;
+.form {
+	display: block;
+	margin: 0 auto;
 }
 
 .navbar-inverse {
@@ -78,34 +59,15 @@ body {
 	max-height: 70px;
 }
 
-.thumbnail {
-	box-shadow: 0 0 2px 1px #f2f2f2;
-	border: solid 1px #e6e6e6;
-	border-radius: 0px;
+#post-button {
+	background-color: #e57100;
+	border-color: #d36800;
+	display: block;
+	margin: 0 auto;
 }
 
-.thumbnail #user {
-	text-align: center;
-}
-
-.thumbnail h4 {
-	color: #01a912;
-	margin-top: 0px;
-	text-align: center;
-}
-
-.thumbnail img {
-	max-width: 200px;
-	max-height: 150px;
-	padding: 5px;
-}
-
-.thumbnail p {
-	text-align: center;
-}
-
-#results {
-	text-align: center;
-	padding-top: 20px;
-	color: #6f6f6f;
+#post-button:active {
+	background-color: #e57100;
+	border-color: #d36800;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
 }

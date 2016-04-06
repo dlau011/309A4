@@ -1,10 +1,14 @@
 /* Move down content because we have a fixed navbar that is 50px tall */
+
 body {
 	font-family: Helvetica;
 	padding-top: 50px;
 	padding-bottom: 20px;
 }
 
+#featured_recipe {
+	text-align: center;
+}
 .glyphicon-star, .glyphicon-star-empty {
 	color: #e57100;
 }
@@ -13,6 +17,8 @@ body {
 	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url("img/sushi-salad.jpg");
 	background-size: cover;
 	margin-bottom: 0px;
+	margin-top: 50px;
+	cursor: pointer;
 }
 
 .jumbotron h3 {
@@ -20,6 +26,7 @@ body {
 	margin-top: 30px;
 	margin-bottom: 30px;
 	text-align: center;
+
 }
 
 .jumbotron p {
@@ -85,7 +92,7 @@ body {
 }
 
 #navbar .open a{
-	background-color: #eee;
+	background-color: white;
 }
 
 #navbar a {
@@ -124,13 +131,11 @@ body {
 }
 
 .thumbnail img {
-	max-width: 100%;
-	max-height: 100%;
+	max-width: 200px;
+	max-height: 150px;
 	padding: 5px;
 }
 
 .thumbnail p {
 	text-align: center;
 }
-
-

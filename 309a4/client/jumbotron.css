@@ -1,3 +1,4 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
 body {
 	font-family: Helvetica;
 	padding-top: 50px;
@@ -6,6 +7,29 @@ body {
 
 .glyphicon-star, .glyphicon-star-empty {
 	color: #e57100;
+}
+
+.jumbotron {
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url("img/sushi-salad.jpg");
+	background-size: cover;
+	margin-bottom: 0px;
+}
+
+.jumbotron h3 {
+	color: #ffffff;
+	margin-top: 30px;
+	margin-bottom: 30px;
+	text-align: center;
+}
+
+.jumbotron p {
+	font-size: 18px;
+	margin-top: 15px;
+	text-align: center;
+}
+
+.jumbotron a {
+	color: #ffffff;
 }
 
 #most-popular {
@@ -22,8 +46,13 @@ body {
     justify-content: center;
 }
 
-.nav-pills li.active a {
+.nav-pills li.active a, .nav-pills li.active a:hover {
 	background-color: #e57100;
+}
+
+.nav-pills li.active a:active {
+	background-color: #e57100;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
 }
 
 .nav-pills li>a {
@@ -31,7 +60,7 @@ body {
 }
 
 #nav-pills {
-	padding-top: 0px;
+	padding-top: 30px;
 	padding-bottom: 20px;
 }
 
@@ -102,10 +131,4 @@ body {
 
 .thumbnail p {
 	text-align: center;
-}
-
-#results {
-	text-align: center;
-	padding-top: 20px;
-	color: #6f6f6f;
 }

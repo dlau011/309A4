@@ -20,7 +20,7 @@
     <link href="browse.css" rel="stylesheet">
   </head>
 
-  <body onload="display_username()">
+  <body>
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -38,9 +38,9 @@
           <!--Search-->
           <form class="navbar-form navbar-left" role="search">
             <div class="form-group">
-              <input type="text" class="form-control" placeholder="Search" id="searchbar" value="">
+              <input type="text" class="form-control" placeholder="Search">
             </div>
-            <a href="searchpage.html" class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search" onclick="view_search()"></i></a>
+            <a href="searchpage.html" class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></a>
           </form>
           <ul class="nav navbar-nav navbar-right">
             <!--Browse-->
@@ -49,7 +49,7 @@
             <li><a href="create_recipe.html">Create Recipe</a></li>
             <!--Profile-->
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="username"><span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">chefd00d <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a onclick="view_self_profile()">Profile</a></li>
                 <li><a href="settings.html">Settings</a></li>
@@ -76,27 +76,45 @@
         <div id="cuisine" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('american')">American</div>
-            <div class="col-md-2" onclick="view_search('chinese')">Chinese</div>
-            <div class="col-md-2" onclick="view_search('indian')">Indian</div>
+          <a href="">
+            <div class="col-md-2">American</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Chinese</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Indian</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
         <div id="cuisine" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('italian')">Italian</div>
-            <div class="col-md-2" onclick="view_search('japanese')">Japanese</div>
-            <div class="col-md-2" onclick="view_search('korean')">Korean</div>
+          <a href="">
+            <div class="col-md-2">Italian</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Japanese</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Korean</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
         <div id="cuisine" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('lebanese')">Lebanese</div>
-            <div class="col-md-2" onclick="view_search('malaysian')">Malaysian</div>
-            <div class="col-md-2" onclick="view_search('')">more...</div>
+          <a href="">
+            <div class="col-md-2">Lebanese</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Malaysian</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">more...</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
@@ -113,18 +131,30 @@
         <div id="mealtime" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('afternoon tea')">Afternoon Tea</div>
-            <div class="col-md-2" onclick="view_search('breakfast')">Breakfast</div>
-            <div class="col-md-2" onclick="view_search('dessert')">Dessert</div>
+          <a href="">
+            <div class="col-md-2">Afternoon Tea</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Breakfast</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Dessert</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
         <div id="mealtime" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('dinner')">Dinner</div>
-            <div class="col-md-2" onclick="view_search('lunch')">Lunch</div>
-            <div class="col-md-2" onclick="view_search('snack')">Snack</div>
+          <a href="">
+            <div class="col-md-2">Dinner</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Lunch</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Snack</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
@@ -141,27 +171,45 @@
         <div id="diet" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('gluten free')">Gluten Free</div>
-            <div class="col-md-2" onclick="view_search('halal')">Halal</div>
-            <div class="col-md-2" onclick="view_search('kosher')">Kosher</div>
+          <a href="">
+            <div class="col-md-2">Gluten Free</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Halal</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Kosher</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
         <div id="diet" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('low calorie')">Low Calorie</div>
-            <div class="col-md-2" onclick="view_search('nut free')">Nut Free</div>
-            <div class="col-md-2" onclick="view_search('sugarless')">Sugarless</div>
+          <a href="">
+            <div class="col-md-2">Low Calorie</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Nut Free</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Sugarless</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>
         <div id="diet" class="row">
           <div class="col-md-3">
           </div>
-            <div class="col-md-2" onclick="view_search('vegan')">Vegan</div>
-            <div class="col-md-2" onclick="view_search('vegetarian')">Vegetarian</div>
-            <div class="col-md-2" onclick="view_search('')">more...</div>
+          <a href="">
+            <div class="col-md-2">Vegan</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">Vegetarian</div>
+          </a>
+          <a href="">
+            <div class="col-md-2">more...</div>
+          </a>
           <div class="col-md-3">
           </div>
         </div>

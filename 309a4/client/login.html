@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!--Logo icon for tab-->
+    <link rel="icon" href="favicon.ico">
+
+    <title>Login</title>
+
+    <!-- Bootstrap core CSS -->
+    <!--May need to change link again-->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="login.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div class="row">
+          <img src="img/logo.png" id="login-logo">
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="header" class="row">
+        <h3>Login</h3>
+      </div>
+    </div> <!-- /container -->
+
+    <div class="container">
+      <div class="row">
+          <form class="form" method="post" id="recipe-form">
+            <div class="form-group row">
+                <input class="form-control" id="username" placeholder="Username">
+            </div>
+            <div class="form-group row">
+                <input type="password" class="form-control" id="password" placeholder="Password">
+            </div>
+            <div class="form-group row">
+                <button id="login-button" type="button" class="btn btn-primary" onclick="login()">Login</button>
+            </div>
+            <div class="form-group row">
+              <p>Don't have an account? Register <a href="register.html">here.</a></p>
+            </div>
+          </form>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Jquery -->
+    <script src="js/jquery-1.12.1.min.js"></script>
+    <!-- Script to sort by most popular -->
+    <script src="js/most-popular-sort.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="jquery.js"></script>
+  </body>
+</html>
