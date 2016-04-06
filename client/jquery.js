@@ -820,6 +820,7 @@ function delete_recipe () {
         .done(function(data) {
             var object = JSON.parse(data).success;
             if(object){
+                view_index_page();
                 return "delete_recipe success";
             }
             if(object.error){
@@ -827,6 +828,7 @@ function delete_recipe () {
             }
 
         });
+
 
 }
 //havent test yet
