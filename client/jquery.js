@@ -121,7 +121,9 @@ function create_recipe_playlist() {
 
         });
 }
-function get_username() {
+
+//change get_username into display_username();
+function display_username() {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
     $.post("http://159.203.44.151:24200/get_logged_in_username", JSON.stringify(requestJSON))
@@ -158,7 +160,21 @@ function login() {
             }
         });  
 }
-function rate_recipe(rating) {
+
+function logout() {
+    var login_id = localStorage.getItem("login_id");
+    var username = localStorage.getItem("username");
+    var recipe_id = localStorage.getItem("recipe_id");
+    localStorage.removeItem(login_id);
+    localStorage.removeItem(username);
+    localStorage.removeItem(recipe_id);
+    console.log(login_id);
+    console.log(username);
+    console.log(recipe_id);
+    location.href = "login.html"; 
+}
+
+function rate_recipe(rating, recipe_id) {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
     requestJSON.recipe_id = localStorage.getItem("recipe_id");
@@ -435,7 +451,6 @@ function display_recipe_playlists() {
                                     for (j = 0; j < object2.recipes.length; j++) {
                                         var requestJSON3 = new Object();
                                         requestJSON3.recipe_id = object2.recipes[j];
-                                        console.log(object2.recipes[j]);
                                         $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON3))
                                             .done(function(data) {                                                var object3 = JSON.parse(data);
                                                 var list = "";
@@ -494,7 +509,7 @@ function display_profile_detail() {
                 }
                 for (var i = 1; i <= 5; i++) {
                     if (object.rating >= i) {
-                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span");
+                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span>");
                     }
                     else {
                         $("#profilerat").append("<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>");
@@ -557,7 +572,7 @@ function display_profile_page() {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
-    get_username();//display nav bar
+    display_username();//display nav bar
     display_profile_detail();
     display_recipe_search("recent","MOST_RECENT", 4, 1, "", [], "", localStorage.getItem("username"));
     display_recipe_playlists();
@@ -568,7 +583,7 @@ function display_recipe_page() {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
-    get_username();
+    display_username();
     display_recipe_detail();
     display_recipe_playlists_dropdown();
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
@@ -581,22 +596,27 @@ function display_index_page() {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
+    display_username();
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
-function display_searchpage(current_search) {
+function display_searchpage() {
     if (localStorage.getItem("login_id") == null) {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
-    get_username();
     
+    display_username();
+    display_recipe_search(resrse)
+ 
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
-function view_search(current_search) {
+function view_search() {
+    var current_search = $("#searchbar").val();
     localStorage.setItem("current_search", current_search);
     location.href="searchpage.html";
+
 }
 function view_recipe(recipe_id) {
     localStorage.setItem("recipe_id", recipe_id);

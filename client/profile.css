@@ -15,10 +15,6 @@ body {
 	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
 }
 
-.glyphicon-cog {
-	color: #6f6f6f;
-}
-
 .glyphicon-menu-down, .glyphicon-menu-up {
 	color: gray;
 }
@@ -70,7 +66,7 @@ body {
 }
 
 #navbar .open a{
-	background-color: #eee;
+	background-color: white;
 }
 
 #navbar a {
@@ -109,8 +105,8 @@ body {
 }
 
 .thumbnail img {
-	max-width: 100%;
-	max-height: 100%;
+	max-width: 200px;
+	max-height: 150px;
 	padding: 5px;
 }
 
