@@ -9,6 +9,12 @@ $(document).ready(function() {
             login();
         }
     });
+    $("#searchbar").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            view_search();
+        }
+    });
 });
 
 function add_comment() {
@@ -244,7 +250,41 @@ function toggle(div_id) {
     $("#" + div_id).toggle();
 }
 
-
+function display_subscriptions() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log(object.error);
+                return;
+            }
+            console.log(object);
+            // given user's subscriptions
+            if (object.username) {
+                for (i = 0; i < object.subscribed_to.length; i++) {
+                    var requestJSON2 = new Object();
+                    requestJSON2.login_id = object.subscribed_to[i];
+                    $("#subscriptions").append("<div id='" + requestJSON2.login_id + "'></div>");
+                    console.log($("#subscriptions").append("<div id='" + requestJSON2.login_id + "'></div>"));
+                    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON2))
+                        .done(function(data) {
+                            object2 = JSON.parse(data);
+                            if (object2.error) {
+                                console.log(object2.error);
+                                return object2.error;
+                            }
+                            if (object2.username) {
+                                // get their subscription's recipes
+                                //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id=""
+                                display_recipe_search(login_id, "MOST_RECENT", 4, 1, "", [], "", object2.username);
+                            }
+                        });
+                }
+            }
+        });
+}
 // Gets the intricate details of a recipe to display
 function display_recipe_detail() {
     // Request to fill current recipe details
@@ -304,7 +344,7 @@ function display_recipe_detail() {
 - similar_recipe is a recipe_id to search by
 - recipes_by_username is a username to see recipes by a certain user
 */
-function display_recipe_search(div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="") {
+function display_recipe_search(div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id="") {
     // Request to fill related recipes at the bottom of a recipe's page
     // Mandatory: sort_type, number of recipes, page_number, div_id
 
@@ -325,6 +365,9 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
     }
     if (recipes_by_username != "") {
         requestJSON.recipes_by_username = recipes_by_username;
+    }
+    if (login_id != "") {
+        requestJSON.login_id = login_id;
     }
 
     $.post("http://159.203.44.151:24200/get_recipes", JSON.stringify(requestJSON))
@@ -589,7 +632,7 @@ function display_recipe_page() {
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
 }
-
+//div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id=""
 // MAIN FUNCTION TO DISPLAY INDEX PAGE
 function display_index_page() {
     if (localStorage.getItem("login_id") == null) {
@@ -597,6 +640,8 @@ function display_index_page() {
         location.href="login.html";
     }
     display_username();
+    display_recipe_search("recommended", "MOST_RECENT", 8, 1, "", [], "", "", localStorage.getItem("login_id"));
+    display_subscriptions();
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
@@ -605,15 +650,19 @@ function display_searchpage() {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
-    
     display_username();
-    display_recipe_search(resrse)
- 
+    
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
-function view_search() {
-    var current_search = $("#searchbar").val();
+function view_search(search="") {
+    var current_search;
+    if (search == "") {
+        current_search == $("#searchbar").val();
+    }
+    else {
+        current_search = search;
+    }
     localStorage.setItem("current_search", current_search);
     location.href="searchpage.html";
 
