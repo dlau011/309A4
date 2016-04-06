@@ -435,6 +435,55 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
         });
 }
 
+function display_subscriptions() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log(object.error);
+                return;
+            }
+            // given user's subscriptions
+            if (object.username) {
+                // given each username
+                for (i = 0; i < object.subscribed_to.length; i++) {
+                    var username = object.subscribed_to[i];
+                    $("#subscriptions").append("<div id='" + username + "'><h3>" + username + "</h3></div><br>");
+                    display_recipe_search(username, "MOST_RECENT", 4, 1, "", [], "", username);   
+                }
+            }
+        });
+}
+
+function get_max_pages() {
+    var recipes_each_page = 48;
+    var num = localStorage.getItem("number_of_results");
+    console.log(num);
+    return Math.ceil(num/recipes_each_page);
+}
+function display_one_page() {
+    var num_page = 1;
+    var keyword = localStorage.getItem("current_search");
+    var recipes_each_page = 48;
+    display_recipe_search("searchresult", "MOST_RECENT", recipes_each_page,num_page,keyword);
+    //change this after !!!!!!!!!!!!>>>>>>>>>>>>>>>>>>
+
+}
+
+function display_page_number () {
+    $("#searchpage_page_number").append('<nav> <ul class="pagination">');
+    $("#searchpage_page_number").append("<li>");
+    for ( var i = 1; i <= get_max_pages(); i++){
+        $("#right_arrow").before("<li><a onclick='display_one_searchpage(" + i + ")' >" + i +"</a></li>");
+    }
+    $("#searchpage_page_number").append("</ul> <nav>");
+}
+function display_one_searchpage (current_page) {
+    localStorage.setItem("current_page",current_page);
+    display_searchpage();
+}
 
 function delete_recipe_playlist(playlist_id) {
     var requestJSON = new Object();
@@ -673,64 +722,10 @@ function display_index_page() {
         location.href="login.html";
     }
     display_username();
+    display_recipe_search("recommended", "MOST_RECENT", 8, 1, "", [], "", "", localStorage.getItem("login_id"));
+    display_subscriptions();
 }
 
-function get_max_pages() {
-    var recipes_each_page = 48;
-    var num = localStorage.getItem("number_of_results");
-    console.log(num);
-    return Math.ceil(num/recipes_each_page);
-}
-function display_one_page() {
-    var num_page = 1;
-    var keyword = localStorage.getItem("current_search");
-    var recipes_each_page = 48;
-    display_recipe_search("searchresult", "MOST_RECENT", recipes_each_page,num_page,keyword);
-    //change this after !!!!!!!!!!!!>>>>>>>>>>>>>>>>>>
-
-}
-
-function display_page_number () {
-    $("#searchpage_page_number").append('<nav> <ul class="pagination">');
-    $("#searchpage_page_number").append("<li>");
-    for ( var i = 1; i <= get_max_pages(); i++){
-        $("#right_arrow").before("<li><a onclick='display_one_searchpage(" + i + ")' >" + i +"</a></li>");
-    }
-    $("#searchpage_page_number").append("</ul> <nav>");
-}
-function display_one_searchpage (current_page) {
-    localStorage.setItem("current_page",current_page);
-    display_searchpage();
-}
-// MAIN FUNCTION TO DISPLAY SEARCH PAGE
-
-function  get_max_pages () {
-    var recipes_each_page = 48;
-    var num = localStorage.getItem("number_of_results");
-    
-    return Math.ceil(num/recipes_each_page);
-}
-function display_one_page(){
-    var num_page = 1;
-    var keyword = localStorage.getItem("current_search");
-    var recipes_each_page = 48;
-    display_recipe_search("searchresult","MOST_RECENT",recipes_each_page,num_page,keyword);
-    //change this after !!!!!!!!!!!!>>>>>>>>>>>>>>>>>>
-
-}
-
-function display_page_number () {
-    $("#searchpage_page_number").append('<nav> <ul class="pagination">');
-    $("#searchpage_page_number").append("<li>");
-    for ( var i = 1; i <= get_max_pages(); i++){
-        $("#right_arrow").before("<li><a onclick='display_one_searchpage(" + i + ")' >" + i +"</a></li>");
-    }
-    $("#searchpage_page_number").append("</ul> <nav>");
-}
-function display_one_searchpage (current_page) {
-    localStorage.setItem("current_page",current_page);
-    display_searchpage();
-}
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
 function display_searchpage() {
     if (localStorage.getItem("login_id") == null) {
