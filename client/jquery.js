@@ -14,8 +14,7 @@ $(document).ready(function() {
             event.preventDefault();
             view_search();
         }
-    })
-
+    });
 });
 
 function add_comment() {
@@ -223,6 +222,7 @@ function display_username() {
 
         });
 }
+
 function login() {
     var requestJSON = new Object();
     requestJSON.username = $("#username").val();
