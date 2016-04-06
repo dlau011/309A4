@@ -85,6 +85,19 @@
          <div id="ratings" class="col-md-3">
             <h4 id="rating">
             </h4>
+            <div class="dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="rating_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                Rate this Recipe
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="rating_dropdown">
+                  <li><a onclick="rate_recipe(1)">1 star</a></li>
+                  <li><a onclick="rate_recipe(2)">2 stars</a></li>
+                  <li><a onclick="rate_recipe(3)">3 stars</a></li>
+                  <li><a onclick="rate_recipe(4)">4 stars</a></li>
+                  <li><a onclick="rate_recipe(5)">5 stars (Favourite)</a></li>
+              </ul>
+            </div>
             <h4 id="prep_time">
                <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
             </h4>
@@ -113,7 +126,7 @@
             <div id="comments" class="col-md-6">
                <p><a onclick="toggle_comments()">Comments <span class="badge" id="num_comments"></span></a></p>
                <p id="tags">Tags: </p>
-               <textarea class="longInput" id="comment" value="" rows="7" cols="60"></textarea>
+               <textarea class="longInput" id="comment" value="" rows="7" cols="40"></textarea><br>
                <input type="button" onclick="add_comment()" value="Comment">
                <p id="comment_success"></p>
                <div id="comment_list"></div>

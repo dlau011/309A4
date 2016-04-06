@@ -181,6 +181,7 @@ function create_recipe_playlist() {
                 return object.error;
             }
             if (object.recipe_playlist_id) {
+                console.log("create_recipe_playlist()");
                 $("#recipe_lists").prepend("<li><a onclick='add_recipe_to_playlist(\"" + object.recipe_playlist_id + "\")'>" + name + "</a></li>");
                 $("#creation_alert").empty().append("Reciple playlist created.");
                 return object.recipe_playlist_id;
@@ -248,7 +249,7 @@ function logout() {
 function rate_recipe(rating, recipe_id) {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
-    requestJSON.recipe_id = recipe_id;
+    requestJSON.recipe_id = localStorage.getItem("recipe_id");
     requestJSON.rating = rating;
     $.post("http://159.203.44.151:24200/rate_recipe", JSON.stringify(requestJSON))
         .done(function(data) {
@@ -315,16 +316,7 @@ function toggle(div_id) {
     $("#" + div_id).toggle();
 }
 
-function display_favourite_recipes() {
-    var requestJSON = new Object();
-    requestJSON.recipe_id = localStorage.getItem("recipe_id");
-    $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON))
-        .done(function(data) {
-            var object = JSON.parse(data);
-            if (object.recipe_id) {
-            }
-        });
-}
+
 // Gets the intricate details of a recipe to display
 function display_recipe_detail() {
     // Request to fill current recipe details
@@ -337,7 +329,7 @@ function display_recipe_detail() {
                 $("#title").text(object.recipe_name);
                 $("#recipe_name").text(object.recipe_name);
                 $("#recipe_by").append("<a onclick='view_profile(\"" + object.author_username + "\")'>" + object.author_username + "</a>");
-                $("#rating").append(object.rating);
+                $("#rating").append(String(Math.round(object.rating * 10)  / 10) + " ");
                 $("#prep_time").append(object.prep_time);
                 $("#serving_size").append(object.serving_size);
                 for (i = 0; i < object.ingredients.length; i++) {
@@ -354,15 +346,15 @@ function display_recipe_detail() {
                         $("#rating").append("<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>");
                     }
                 }
-
+                $("#rating").append(" (" + object.num_ratings + " ratings) ");
                 document.getElementById("main_image").style.background = "url('" + object.main_image + "') no-repeat center";
                 $("#main_text").html(object.recipe_text);
                 $("#num_comments").text(object.comments.length);
                 for (k = 0; k < object.tags.length; k++) {
-                    $("#tags").append("<a href='MAKEASEARCHFUNCTION'>#" + object.tags[k] + " </a>");
+                    $("#tags").append("<a onclick='view_search(\"" + object.tags[k] + "\")'>#" + object.tags[k] + " </a>");
                 }
                 for (l = 0; l < object.comments.length; l++) {
-                    $("#comment_list").append("<li>" + object.comments[l].author_username + ": " + object.comments[l].comment_text + "</li>");
+                    $("#comment_list").append("<div class='comment'><b><a onclick='view_profile(\"" + object.comments[l].author_username + "\")'>" + object.comments[l].author_username + "</a>:</b> " + object.comments[l].comment_text + "</div><br>");
                 }
 
                 return object;
@@ -440,13 +432,31 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
         });
 }
 
+function delete_recipe_playlist(playlist_id) {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.geItem("login_id");
+    requestJSON.playlist_id = playlist_id;
+    $.post("http://159.203.44.151:24200/delete_recipe_playlist", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log(object.error);
+                return object.error;
+            }
+            if (object.success) {
+                console.log("Recipe playlist successfully removed");
+            }
+            else console.log("error removing playlist");
+        });
+}
 // Displays the recipe dropdown menu
-function display_recipe_playlists() {
+function display_recipe_playlists_dropdown() {
     // Request to fill recipe playlists
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
     $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
         .done(function(data) {
+            // a user with .recipe_playlists[id,id,id]
             var object = JSON.parse(data);
             if (object.error) {
                 console.log("Error");
@@ -459,26 +469,104 @@ function display_recipe_playlists() {
                     requestJSON2.recipe_playlist_id = object.recipe_playlists[i];
                     $.post("http://159.203.44.151:24200/get_recipe_playlist", JSON.stringify(requestJSON2))
                         .done(function(data) {
+                            // a recipe playlist
                             var object2 = JSON.parse(data);
                             if (object2.error) {
                                 console.log(object2.error);
                                 return;
                             }
-                            if (object2) {
-                                $("#recipe_lists").prepend("<li><a onclick='add_recipe_to_playlist(\"" + object.recipe_playlists[i] + "\")'>" + object2.recipe_playlist_name + "</a></li>");
+                            if (object2.recipes.length > 0) {
+                                for (j = 0; j < object2.recipes.length; j++) {
+                                    $("#recipe_lists").prepend("<li><a onclick='add_recipe_to_playlist(\"" + object.recipe_playlists[j] + "\")'>" + object2.recipe_playlist_name + "</a></li>");
+                                }
+                                return;
                             }
                         });
                 }
-                return;
-            }
-            else {
-                console.log("recipe list error");
                 return;
             }
 
         });
 }
 
+// Display recipe playlists on someone's profile
+function display_recipe_playlists() {
+    // Request to fill recipe playlists
+    var requestJSON = new Object();
+    requestJSON.username = localStorage.getItem("username");
+    // for this user
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log("Error");
+                return object.error;
+            }
+            // for every recipe playlist this user has
+            if (object.recipe_playlists && object.recipe_playlists.length > 0) {
+                for (i = 0; i < object.recipe_playlists.length; i++) {
+                    var requestJSON2 = new Object();
+                    // make a recipe_playlist post for each recipe_id in the playlist
+                    requestJSON2.recipe_playlist_id = object.recipe_playlists[i];
+                    $.post("http://159.203.44.151:24200/get_recipe_playlist", JSON.stringify(requestJSON2))
+                        .done(function(data) {
+                            var object2 = JSON.parse(data);
+                            if (object2.error) {
+                                console.log(object2.error);
+                                return;
+                            }
+                            // if found a recipe_playlist
+                            if (object2) {
+                                $("#recipe_lists").append("<div class='row' id='" + object2.recipe_playlist_id + "'><h3>" + object2.recipe_playlist_name + "</h3></div>");
+                                // for every recipe in this recipe_playlist
+                                if (object2.recipes.length > 0) {
+                                    for (j = 0; j < object2.recipes.length; j++) {
+                                        var requestJSON3 = new Object();
+                                        requestJSON3.recipe_id = object2.recipes[j];
+                                        $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON3))
+                                            .done(function(data) {                                                var object3 = JSON.parse(data);
+                                                var list = "";
+                                                list += 
+                                                    "<div class='col-sm-6 col-md-3'><div class='thumbnail'>" +
+                                                    "<img src='" + object3.main_image + "' alt='...' class='img-rounded'>" +
+                                                    "<div class='caption'><h4><a onclick=view_recipe(\"" + object3.recipe_id + "\")>" + object3.recipe_name + "</a></h4>" +
+                                                    "<p>by <a onclick=view_profile(\"" + object3.author_username + "\")>" + object3.author_username +"</a></p><p>";
+                                                for (k = 1; k <= 5; k++) {
+                                                    // rating = 0? rating = 1? rating = 3.5? rating = 3.7?
+                                                    // j = 1,2,3,4,5
+                                                    if (object3.rating >= k) {
+                                                        list += "<span class='glyphicon glyphicon-star' aria-hidden='true'></span>";
+                                                    }
+                                                    else {
+                                                        if (object3.rating + .5 >= j + 1) {
+                                                            list += "<span class='glyphicon glyphicon-star' aria-hidden='true'></span>";
+                                                        }
+                                                    // check if you need whole star or half star
+                                                        else {
+                                                            list +="<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>";
+                                                        }
+                                                    }
+                                                }
+                                                list += "</p><p><span class='glyphicon glyphicon-time' aria-hidden='true'></span>" + object3.prep_time + "</p></div></div></div>";              
+                                                //console.log(list);
+                                                $("#" + object2.recipe_playlist_id).append(list);
+                                            });
+
+                                    }
+                                }
+                            }
+                        });
+
+                }
+
+            }
+            else {
+                console.log("No recipe playlists found");
+                return;
+            }
+
+        });
+}
 // Displays the intricate details of a profile
 function display_profile_detail() {
     var requestJSON = new Object();
@@ -493,7 +581,7 @@ function display_profile_detail() {
                 }
                 for (var i = 1; i <= 5; i++) {
                     if (object.rating >= i) {
-                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span");
+                        $("#profilerat").append("<span class='glyphicon glyphicon-star' aria-hidden='true'></span>");
                     }
                     else {
                         $("#profilerat").append("<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>");
@@ -559,6 +647,7 @@ function display_profile_page() {
     display_username();//display nav bar
     display_profile_detail();
     display_recipe_search("recent","MOST_RECENT", 4, 1, "", [], "", localStorage.getItem("username"));
+    display_recipe_playlists();
 }
 // MAIN FUNCTION TO DISPLAY RECIPE PAGE
 function display_recipe_page() {
@@ -568,7 +657,7 @@ function display_recipe_page() {
     }
     display_username();
     display_recipe_detail();
-    display_recipe_playlists();
+    display_recipe_playlists_dropdown();
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
 }
@@ -588,6 +677,7 @@ function display_searchpage() {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
+    
     display_username();
     display_recipe_search(resrse)
  
