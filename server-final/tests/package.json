@@ -1,0 +1,22 @@
+{
+  "name": "tests",
+  "version": "0.0.0",
+  "description": "Tests for cookbook server using mocha and supertest.",
+  "main": "tests.js",
+  "dependencies": {
+    "supertest": "^1.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dlau011/309A4.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dlau011/309A4/issues"
+  }
+}
