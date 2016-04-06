@@ -4,53 +4,16 @@ body {
 	padding-bottom: 20px;
 }
 
-.col-md-2 {
-	cursor: pointer;
-}
-
-.container {
-	padding: 10px;
-}
-
-#cuisine .col-md-2 {
-	background-color: #e50000;
-	border: solid 1px #ffffff;
-	color: #ffffff;
-	padding: 10px;
-	text-align: center;
-}
-
-#cuisine .col-md-2:hover, #diet .col-md-2:hover, #mealtime .col-md-2:hover {
-	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
-}
-
-#diet .col-md-2 {
-	background-color: #00cd15;
-	border: solid 1px #ffffff;
-	color: #ffffff;
-	padding: 10px;
+#header {
+	color: #e57100;
+	padding-bottom: 20px;
+	padding-top: 10px;
 	text-align: center;
 }
 
 h4 {
-	color: #5a5a5a;
-}
-
-#header {
 	text-align: center;
 	padding: 10px;
-}
-
-#header h3 {
-	color: #e57100;
-}
-
-#mealtime .col-md-2 {
-	background-color: #e57100;
-	border: solid 1px #ffffff;
-	color: #ffffff;
-	padding: 10px;
-	text-align: center;
 }
 
 .navbar-inverse {
@@ -73,7 +36,7 @@ h4 {
 	padding-bottom: 5px;
 }
 
-#navbar .open a {
+#navbar .open a{
 	background-color: white;
 }
 
@@ -96,10 +59,13 @@ h4 {
 	max-height: 70px;
 }
 
-#section-header {
-	padding-left: 0px;
-	padding-right: 0px;
+#changepw-button, #changepic-button, #changebio-button {
+	background-color: #e57100;
+	border-color: #d36800;
 }
 
-
-
+#changepw-button:active, #changepic-button:active, #changebio-button:active {
+	background-color: #e57100;
+	border-color: #d36800;
+	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );
+}
