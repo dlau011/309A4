@@ -240,11 +240,62 @@ function login() {
         });  
 }
 
+
+
+function onSignIn(googleUser) {
+    if (localStorage.getItem("login_id") != null) {
+        var profile = googleUser.getBasicProfile();
+        var requestJSON = new Object();
+        requestJSON.username = profile.getName();
+        requestJSON.hashed_password = hash(profile.getId());
+        $.post("http://159.203.44.151:24200/authenticate_user", JSON.stringify(requestJSON))
+            .done(function(data) {
+                var object = JSON.parse(data);
+                if (object.error) {
+                    var requestJSON2 = new Object();
+                    requestJSON2.username = profile.getName();
+                    requestJSON2.hashed_password = hash(profile.getId());
+                    requestJSON2.full_name = profile.getName();
+                    $.post("http://159.203.44.151:24200/create_user", JSON.stringify(requestJSON2))
+                        .done(function(data) {
+                            var object2 = JSON.parse(data);
+                            if (object2.error) {
+                                $("#google_login_fail").empty().append("Failed to log in to Google");
+                            }
+                            if (object2.login_id) {
+                                localStorage.setItem("login_id", object2.login_id);
+                                console.log("hi");
+                                view_index_page();
+                            }
+                            else {
+                                $("#google_login_fail").empty().append("Error retrieving data");
+                            }
+                        });
+                }
+                if (object.login_id) {
+                    localStorage.setItem("login_id", object.login_id);
+                    view_index_page();
+                }
+            });
+    }
+    return;
+}
+
+// For signing out of Google
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log("Logged out of Google");
+    });
+}
+
+// For signing out of Cookbook
 function logout() {
     localStorage.removeItem("login_id");
     localStorage.removeItem("username");
     localStorage.removeItem("recipe_id");
-    location.href = "login.html"; 
+
+    view_login();
 }
 
 function rate_recipe(rating, recipe_id) {
@@ -305,7 +356,7 @@ function subscribe_to() {
     $.post("http://159.203.44.151:24200/subscribe_to", JSON.stringify(requestJSON))
         .done(function(data) {
             if (JSON.parse(data).success ) {
-                
+                $("#subscribe_alert").empty().append("Subscribed");
                 return;
             }
             if (JSON.parse(data).error) {
@@ -409,7 +460,7 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
                 return object.error;
             }
             var list = "";
-            localStorage.setItem("number_of_results",object.length);
+            localStorage.setItem("number_of_results", object.length);
             for (i = 0; i < object.length; i++) {
                 var recipe_id = "\"" + object[i].recipe_id + "\"";
                 list += 
@@ -450,7 +501,7 @@ function display_subscriptions() {
                 // given each username
                 for (i = 0; i < object.subscribed_to.length; i++) {
                     var username = object.subscribed_to[i];
-                    $("#subscriptions").append("<div id='" + username + "'><h3>" + username + "</h3></div><br>");
+                    $("#subscriptions").append("<div class='row' id='" + username + "'><h3>" + username + "</h3></div><br>");
                     display_recipe_search(username, "MOST_RECENT", 4, 1, "", [], "", username);   
                 }
             }
@@ -650,7 +701,7 @@ function display_profile_detail() {
                 $("#profile_userid").append("<a href=\"#\">@"+ object.username +"</a>");
                 $("#profile_bio").append(object.bio);
 
-                for(var i = 0; i < 3; i ++){
+                for(var i = 0; i < min(3, object.most_used_tags.length); i ++){
                     $("#profile_tags").append("<li><a href=\"#\">#"+ object.most_used_tags[i] +"</a></li>");
                 }
                 // display favorite recipes
@@ -714,7 +765,28 @@ function display_recipe_page() {
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
 }
+function display_login() {
+    signOut();
+}  
 
+function display_featured_recipe(recipe_id) {
+    var requestJSON = new Object();
+    requestJSON.recipe_id = recipe_id;
+    $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log(object.error);
+            }
+            if (object.recipe_name) {
+                $("#featured_recipe").append(object.recipe_name);
+
+            }
+            else {
+                console.log("error retrieving featured recipe");
+            }
+        });
+}
 // MAIN FUNCTION TO DISPLAY INDEX PAGE
 function display_index_page() {
     if (localStorage.getItem("login_id") == null) {
@@ -722,8 +794,10 @@ function display_index_page() {
         location.href="login.html";
     }
     display_username();
-    display_recipe_search("recommended", "MOST_RECENT", 8, 1, "", [], "", "", localStorage.getItem("login_id"));
+    display_recipe_search("recommended1", "MOST_RECENT", 4, 1, "", [], "", "", localStorage.getItem("login_id"));
+    display_recipe_search("recommended2", "MOST_RECENT", 4, 2, "", [], "", "", localStorage.getItem("login_id"));
     display_subscriptions();
+    display_featured_recipe("1459920783059-13937");
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
@@ -739,14 +813,8 @@ function display_searchpage() {
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
-function view_search(search="") {
-    var current_search;
-    if (search != "") {
-        current_search == $("#searchbar").val();
-    }
-    else {
-        current_search = search;
-    }
+function view_search() {
+    
     localStorage.setItem("current_search", current_search);
     location.href="searchpage.html";
 }
@@ -756,6 +824,9 @@ function view_recipe(recipe_id) {
     location.href="recipe.html";
 }
 
+function view_login() {
+    location.href = "login.html";
+}
 function view_profile(username) {
     localStorage.setItem("username", username);
     location.href = "profile.html";

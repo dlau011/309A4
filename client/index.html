@@ -13,6 +13,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script src="jquery.js"></script>
 
+
     <title>Cookbook</title>
 
     <!-- Bootstrap core CSS -->
@@ -69,8 +70,9 @@
 
     <!-- If time permits, make into slideslow -->
     <div class="container">
-      <div class="jumbotron">
-        <h3 id="featured_recipe"><a onclick="display_featured()">Daily Featured Recipe:</a></h3>
+      <div class="jumbotron" onclick="view_recipe('1459920783059-13937')" >
+        <h3>Daily Featured Recipe:</h3>
+        <h3 id="featured_recipe"></h3>
       </div>
     </div>
 
@@ -83,14 +85,15 @@
 
         <div class="col-md-4"></div>
       </div>
-      <div class="row" id="recommended">
-      </div>
+      <div id="recommended1" class="row"></div>
+      <div id="recommended2" class="row"></div>
+    </div>
     </div> <!-- /container -->
         <div class="container">
     <div id="most-popular" class="row">
       <div class="col-md-4"></div>
       <div class="col-md-4">
-        <h4>Subscriptions: </h4>
+        <h4>Latest from Subscriptions: </h4>
       </div>
 
       <div class="col-md-4"></div>
@@ -105,8 +108,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Jquery -->
     <script src="js/jquery-1.12.1.min.js"></script>
-    <!-- Script to sort by most popular -->
-    <script src="js/most-popular-sort.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="37830001836-qoqoavn1k6nkd49mgqoucpro4ui55bgs.apps.googleusercontent.com">
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="js/bootstrap.min.js"></script>
   </body>
