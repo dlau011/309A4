@@ -15,6 +15,12 @@ $(document).ready(function() {
             view_search();
         }
     })
+    $("#search_tags").keypress(function(event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            display_searchpage();
+        }
+    })
 
 });
 
@@ -378,7 +384,7 @@ function display_recipe_detail() {
 - similar_recipe is a recipe_id to search by
 - recipes_by_username is a username to see recipes by a certain user
 */
-function display_recipe_search(div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="") {
+function display_recipe_search(div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id="") {
     // Request to fill related recipes at the bottom of a recipe's page
     // Mandatory: sort_type, number of recipes, page_number, div_id
 
@@ -400,7 +406,9 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
     if (recipes_by_username != "") {
         requestJSON.recipes_by_username = recipes_by_username;
     }
-
+    if (login_id != "") {
+        requestJSON.login_id = localStorage.getItem("login_id");
+    }
     $.post("http://159.203.44.151:24200/get_recipes", JSON.stringify(requestJSON))
         .done(function(data) {
             var object = JSON.parse(data);
@@ -409,8 +417,10 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
                 return object.error;
             }
             var list = "";
-            localStorage.setItem("number_of_results",object.length);
             for (i = 0; i < object.length; i++) {
+                if (i % 4 == 0) {
+                    list += "<div class='row'>";
+                }
                 var recipe_id = "\"" + object[i].recipe_id + "\"";
                 list += 
                     "<div class='col-sm-6 col-md-3'><div class='thumbnail'>" +
@@ -418,19 +428,21 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
                     "<div class='caption'><h4><a onclick=view_recipe(\"" + object[i].recipe_id + "\")>" + object[i].recipe_name + "</a></h4>" +
                     "<p>by <a onclick=view_profile(\"" + object[i].author_username + "\")>" + object[i].author_username +"</a></p><p>";
                 for (j = 1; j <= 5; j++) {
-                    // rating = 0? rating = 1? rating = 3.5? rating = 3.7?
-                    // j = 1,2,3,4,5
                     if (object[i].rating >= j) {
                         list += "<span class='glyphicon glyphicon-star' aria-hidden='true'></span>";
                     }
                     else {
-                    // check if you need whole star or half star
                         list +="<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>";
                     }
                 }
-                list += "</p><p><span class='glyphicon glyphicon-time' aria-hidden='true'></span>" + object[i].prep_time + "</p></div></div></div>";              
+                list += "</p><p><span class='glyphicon glyphicon-time' aria-hidden='true'></span>" + object[i].prep_time + "</p></div></div></div>";   
+                if ((i + 1) % 4 == 0) {
+                    list += "</div>";
+                }     
             }
-
+            if (object.length % 4 != 0) {
+                list += "</div>";
+            }
             $("#"+div_id).append(list);
         });
 }
@@ -450,40 +462,13 @@ function display_subscriptions() {
                 // given each username
                 for (i = 0; i < object.subscribed_to.length; i++) {
                     var username = object.subscribed_to[i];
-                    $("#subscriptions").append("<div id='" + username + "'><h3>" + username + "</h3></div><br>");
+                    $("#subscriptions").append("<div id='" + username + "'><h3>" + username + "</h3></div>");
                     display_recipe_search(username, "MOST_RECENT", 4, 1, "", [], "", username);   
                 }
             }
         });
 }
 
-function get_max_pages() {
-    var recipes_each_page = 48;
-    var num = localStorage.getItem("number_of_results");
-    console.log(num);
-    return Math.ceil(num/recipes_each_page);
-}
-function display_one_page() {
-    var num_page = 1;
-    var keyword = localStorage.getItem("current_search");
-    var recipes_each_page = 48;
-    display_recipe_search("searchresult", "MOST_RECENT", recipes_each_page,num_page,keyword);
-    //change this after !!!!!!!!!!!!>>>>>>>>>>>>>>>>>>
-
-}
-
-function display_page_number () {
-    $("#searchpage_page_number").append('<nav> <ul class="pagination">');
-    $("#searchpage_page_number").append("<li>");
-    for ( var i = 1; i <= get_max_pages(); i++){
-        $("#right_arrow").before("<li><a onclick='display_one_searchpage(" + i + ")' >" + i +"</a></li>");
-    }
-    $("#searchpage_page_number").append("</ul> <nav>");
-}
-function display_one_searchpage (current_page) {
-    localStorage.setItem("current_page",current_page);
-    display_searchpage();
-}
 
 function delete_recipe_playlist(playlist_id) {
     var requestJSON = new Object();
@@ -529,9 +514,8 @@ function display_recipe_playlists_dropdown() {
                                 return;
                             }
                             if (object2.recipes.length > 0) {
-                                for (j = 0; j < object2.recipes.length; j++) {
-                                    $("#recipe_lists").prepend("<li><a onclick='add_recipe_to_playlist(\"" + object.recipe_playlists[j] + "\")'>" + object2.recipe_playlist_name + "</a></li>");
-                                }
+                                $("#recipe_lists").prepend("<li><a onclick='add_recipe_to_playlist(\"" + object.recipe_playlists[i] + "\")'>" + object2.recipe_playlist_name + "</a></li>");
+                                
                                 return;
                             }
                         });
@@ -711,7 +695,7 @@ function display_recipe_page() {
     display_username();
     display_recipe_detail();
     display_recipe_playlists_dropdown();
-    //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username=""
+    //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
 }
 
@@ -721,30 +705,46 @@ function display_index_page() {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
+
+    //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id=""
     display_username();
     display_recipe_search("recommended", "MOST_RECENT", 8, 1, "", [], "", "", localStorage.getItem("login_id"));
     display_subscriptions();
 }
 
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
-function display_searchpage() {
+function display_searchpage(sort_type="POPULAR_TODAY", tags=[]) {
     if (localStorage.getItem("login_id") == null) {
         alert("Please log in before continuing to use Cookbook");
         location.href="login.html";
     }
+
+    //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id=""
     display_username();
-    display_page_number();  
-    display_one_page(); 
+    $("#searchresult").empty();
+    if ($("#search_tags").val() != "") {
+        tags = $("#search_tags").val().split(',');
+        for (i = 0; i < tags.length; i++) {
+            tags[i] = tags[i].trim();
+            tags[i] = tags[i].replace(",",'');
+        }
+    }
+    var search_query = ""
+    if ($("#searchbar").val() != "") {
+        search_query = $("#searchbar").val();
+    }
+    else {
+        search_query = localStorage.getItem("current_search");
+    }
+    display_recipe_search("searchresult", sort_type, 24, 1, search_query, tags);
 
 }
 
 // ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
 function view_search() {
     var current_search = $("#searchbar").val();
-    if(current_search != ""){
-        localStorage.setItem("current_search", current_search);
-        location.href="searchpage.html";
-    }
+    localStorage.setItem("current_search", current_search);
+    location.href="searchpage.html"; 
 
 }
 function view_recipe(recipe_id) {

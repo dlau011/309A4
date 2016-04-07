@@ -126,18 +126,12 @@
          </div>
          <div id="end" class="row">
             <div id="comments" class="col-md-6">
-               <p><a onclick="toggle_comments()">Comments <span class="badge" id="num_comments"></span></a></p>
+               <p><a onclick="toggle('comment_list')">Comments <span class="badge" id="num_comments"></span></a></p>
                <p id="tags">Tags: </p>
                <textarea class="longInput" id="comment" value="" rows="7" cols="40"></textarea><br>
                <input type="button" onclick="add_comment()" value="Comment">
                <p id="comment_success"></p>
                <div id="comment_list"></div>
-            </div>
-            <div class="col-md-6">
-               <h5>Share this recipe:</h5>
-               <a class="btn btn-social-icon btn-facebook"><span class="fa fa-facebook"></span></a>
-               <a class="btn btn-social-icon btn-twitter"><span class="fa fa-twitter"></span></a>
-               <a class="btn btn-social-icon btn-pinterest"><span class="fa fa-pinterest"></span></a>
             </div>
          </div>
          <div class="row">
