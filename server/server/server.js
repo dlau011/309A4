@@ -17,8 +17,10 @@ var mongoose = require('mongoose');
 var express = require('express');
 var bodyParser = require('body-parser');
 var rateLimit = require('express-rate-limit');
+var cors = require('cors');
 var app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 // Block brute force requests:
 var limiter = rateLimit({
