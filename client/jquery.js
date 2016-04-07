@@ -485,23 +485,56 @@ function display_one_searchpage (current_page) {
     display_searchpage();
 }
 
-function delete_recipe_playlist(playlist_id) {
+// Display recipe lists that can be deleted from user.
+function display_delete_playlists () {
     var requestJSON = new Object();
-    requestJSON.login_id = localStorage.geItem("login_id");
-    requestJSON.playlist_id = playlist_id;
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if(object){
+                // Get and display all of user's recipe lists.
+                for (var i = 0; i < object.recipe_playlists.length; i++) {
+                    var requestJSON = new Object();
+                    requestJSON.recipe_playlist_id = object.recipe_playlists[i];
+                    var playlist = object.recipe_playlists[i];
+                    $.post("http://159.203.44.151:24200/get_recipe_playlist", JSON.stringify(requestJSON))
+                        .done(function(data) {
+                            var recipe_playlist_name  = JSON.parse(data).recipe_playlist_name;
+                            if(recipe_playlist_name){
+                                $("#delete_div").append("<div class=\"form-group row\" id=\"" + playlist + "\"><div class=\"col-sm-offset-4 col-sm-8\">" + recipe_playlist_name + "  <button id=\"deletelist-button\" type=\"button\" class=\"btn btn-primary\" onclick=\"delete_playlist('"+ playlist +"')\">Delete List</button></div></div>");
+                            }   
+                            else if(recipe_playlist_name.error) {
+                                $("#deletelist_status").empty().append("Recipe lists could not be displayed.");
+                            }
+                        });
+                };
+            }
+            else if(object.error){
+                $("#deletelist_status").empty().append("Recipe lists could not be displayed.");
+            }
+        });
+}
+
+// Delete recipe list from user.
+function delete_playlist (recipe_playlist_id) {
+    $("#deletelist_status").empty();
+    var requestJSON = new Object();
+    requestJSON.recipe_playlist_id = recipe_playlist_id;
+    requestJSON.login_id = localStorage.getItem("login_id");
     $.post("http://159.203.44.151:24200/delete_recipe_playlist", JSON.stringify(requestJSON))
         .done(function(data) {
             var object = JSON.parse(data);
-            if (object.error) {
-                console.log(object.error);
-                return object.error;
+            if (JSON.parse(data).success) {
+                $("#"+recipe_playlist_id+"").empty();
+                $("#deletelist_status").empty().append("Recipe list deleted.");
             }
-            if (object.success) {
-                console.log("Recipe playlist successfully removed");
+            else if(JSON.parse(data).error) {
+                $("#deletelist_status").empty().append("Could not delete recipe list.");
             }
-            else console.log("error removing playlist");
         });
 }
+
 // Displays the recipe dropdown menu
 function display_recipe_playlists_dropdown() {
     // Request to fill recipe playlists
