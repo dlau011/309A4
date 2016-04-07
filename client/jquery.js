@@ -24,6 +24,7 @@ $(document).ready(function() {
 
 });
 
+// ---------- Functions that change the database ------------
 function add_comment() {
     //recipe_id login_id comment_text
     var requestJSON = new Object();
@@ -33,7 +34,6 @@ function add_comment() {
     $.post("http://159.203.44.151:24200/add_comment", JSON.stringify(requestJSON))
         .done(function(data) {
             var object = JSON.parse(data);
-            console.log(object);
             if (object.error) {
                 console.log(object.error);
                 return;
@@ -45,6 +45,7 @@ function add_comment() {
             }
         });
 }
+
 function add_recipe_to_playlist(playlist_id) {
     var requestJSON = new Object();
     requestJSON.recipe_id = localStorage.getItem("recipe_id");
@@ -57,12 +58,10 @@ function add_recipe_to_playlist(playlist_id) {
                 return object.error;
             }
             if (object.success) {
-                console.log(object.success);
                 $("#creation_alert").empty().append("Recipe playlist added");
                 return;
             }
             else {
-                console.log("error");
                 return;
             }
         });
@@ -83,7 +82,6 @@ function change_bio() {
                 $("#changebio_status").empty().append("Profile bio change failed.");
             }
         });
-
 }
 
 function change_password() {
@@ -170,7 +168,6 @@ function create_recipe() {
         .done(function(data) {
             var recipe_id = JSON.parse(data).recipe_id;
             if (recipe_id) { 
-                console.log(recipe_id);
                 view_recipe(recipe_id);
                 return recipe_id;
             }
@@ -179,6 +176,7 @@ function create_recipe() {
             }
         });
 }
+
 function create_recipe_playlist() {
     var name = prompt("What would you like to name your new Recipe Playlist?");
     var requestJSON = new Object();
@@ -194,63 +192,15 @@ function create_recipe_playlist() {
                 return object.error;
             }
             if (object.recipe_playlist_id) {
-                console.log("create_recipe_playlist()");
                 $("#recipe_lists").prepend("<li><a onclick='add_recipe_to_playlist(\"" + object.recipe_playlist_id + "\")'>" + name + "</a></li>");
                 $("#creation_alert").empty().append("Reciple playlist created.");
                 return object.recipe_playlist_id;
             }
             else {
-                console.log("recipe list error");
                 return;
             }
 
         });
-}
-
-//change get_username into display_username();
-function display_username() {
-    var requestJSON = new Object();
-    requestJSON.login_id = localStorage.getItem("login_id");
-    $.post("http://159.203.44.151:24200/get_logged_in_username", JSON.stringify(requestJSON))
-        .done(function(data) {
-            var username = JSON.parse(data).username;
-            if (username) {
-                // whenever something needs username filled in, do it here
-                $("#username").text(username);
-                return username;
-            }
-            if (JSON.parse(data).error) {
-                console.log(JSON.parse(data).error);
-                return "JSON Error";
-            }
-            else {
-                return "User Not Found";
-            }
-
-        });
-}
-function login() {
-    var requestJSON = new Object();
-    requestJSON.username = $("#username").val();
-    requestJSON.hashed_password = hash($("#password").val());
-    $.post("http://159.203.44.151:24200/authenticate_user", JSON.stringify(requestJSON))
-        .done(function(data){
-            var login_id = JSON.parse(data).login_id;
-            if (login_id) {
-                location.href = "index.html";
-                localStorage.setItem("login_id", login_id);
-            }
-            else {
-                $("#message").empty().append("Incorrect username or password");
-            }
-        });  
-}
-
-function logout() {
-    localStorage.removeItem("login_id");
-    localStorage.removeItem("username");
-    localStorage.removeItem("recipe_id");
-    location.href = "login.html"; 
 }
 
 function rate_recipe(rating, recipe_id) {
@@ -265,13 +215,14 @@ function rate_recipe(rating, recipe_id) {
                 return "JSON Error";
             }
             if (JSON.parse(data).success == true) {
-                console.log("Rating success");
+                $("#ratings").append("Rating Success");
             }
             else {
                 return "Recipe rate failure";
             }
         });
 }
+
 function register() {
     var requestJSON = new Object();
     // Make sure user typed the right password
@@ -304,6 +255,7 @@ function register() {
             }
         });
 }
+
 function subscribe_to() {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
@@ -320,10 +272,162 @@ function subscribe_to() {
             }
         });
 }
+
+function delete_recipe_playlist(playlist_id) {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.geItem("login_id");
+    requestJSON.playlist_id = playlist_id;
+    $.post("http://159.203.44.151:24200/delete_recipe_playlist", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                console.log(object.error);
+                return object.error;
+            }
+            if (object.success) {
+                return;
+            }
+            else console.log("error removing playlist");
+        });
+}
+
+function delete_recipe () {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    requestJSON.recipe_id = localStorage.getItem("recipe_id");
+    $.post("http://159.203.44.151:24200/delete_recipe", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data).success;
+            if(object){
+                view_index_page();
+                return "delete_recipe success";
+            }
+            if(object.error){
+                return "JSON Error";
+            }
+
+        });
+}
+
+function delete_playlist (recipe_playlist_id) {
+    $("#deletelist_status").empty();
+    var requestJSON = new Object();
+    requestJSON.recipe_playlist_id = recipe_playlist_id;
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/delete_recipe_playlist", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (JSON.parse(data).success) {
+                $("#"+recipe_playlist_id+"").empty();
+                $("#deletelist_status").empty().append("Recipe list deleted.");
+            }
+            else if(JSON.parse(data).error) {
+                $("#deletelist_status").empty().append("Could not delete recipe list.");
+            }
+        });
+}
+
+// --------------------------------------------------------
+// Display username in the element with id=username
+function display_username() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_logged_in_username", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.username) {
+                // whenever something needs username filled in, do it here
+                $("#username").text(object.username);
+                return username;
+            }
+            if (object.error) {
+                console.log(object.error);
+                return "JSON Error";
+            }
+            else {
+                return "User Not Found";
+            }
+
+        });
+}
+
+// simple login function
+function login() {
+    var requestJSON = new Object();
+    requestJSON.username = $("#username").val();
+    requestJSON.hashed_password = hash($("#password").val());
+    $.post("http://159.203.44.151:24200/authenticate_user", JSON.stringify(requestJSON))
+        .done(function(data){
+            var login_id = JSON.parse(data).login_id;
+            if (login_id) {
+                location.href = "index.html";
+                localStorage.setItem("login_id", login_id);
+            }
+            else {
+                $("#message").empty().append("Incorrect username or password");
+            }
+        });  
+}
+
+// simple logout function
+function logout() {
+    localStorage.removeItem("login_id");
+    localStorage.removeItem("username");
+    localStorage.removeItem("recipe_id");
+    localStorage.removeItem("current_search");
+    location.href = "login.html"; 
+}
+
+// Google sign in
+function onSignIn(googleUser) {
+    if (localStorage.getItem("login_id") != null) {
+        var profile = googleUser.getBasicProfile();
+        var requestJSON = new Object();
+        requestJSON.username = profile.getName();
+        requestJSON.hashed_password = hash(profile.getId());
+        $.post("http://159.203.44.151:24200/authenticate_user", JSON.stringify(requestJSON))
+            .done(function(data) {
+                var object = JSON.parse(data);
+                if (object.error) {
+                    var requestJSON2 = new Object();
+                    requestJSON2.username = profile.getName();
+                    requestJSON2.hashed_password = hash(profile.getId());
+                    requestJSON2.full_name = profile.getName();
+                    $.post("http://159.203.44.151:24200/create_user", JSON.stringify(requestJSON2))
+                        .done(function(data) {
+                            var object2 = JSON.parse(data);
+                            if (object2.error) {
+                                $("#google_login_fail").empty().append("Failed to log in to Google");
+                            }
+                            if (object2.login_id) {
+                                localStorage.setItem("login_id", object2.login_id);
+                                view_index_page();
+                            }
+                            else {
+                                $("#google_login_fail").empty().append("Error retrieving data");
+                            }
+                        });
+                }
+                if (object.login_id) {
+                    localStorage.setItem("login_id", object.login_id);
+                    view_index_page();
+                }
+            });
+    }
+    return;
+}
+
+// Google sign out
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log("Logged out of Google");
+    });
+}
+// toggle display status of a div
 function toggle(div_id) {
     $("#" + div_id).toggle();
 }
-
 
 // Gets the intricate details of a recipe to display
 function display_recipe_detail() {
@@ -447,6 +551,7 @@ function display_recipe_search(div_id, sort_type, number_of_recipes, page_number
         });
 }
 
+// Display the last 4 recipes from each of a user's subscriptions
 function display_subscriptions() {
     var requestJSON = new Object();
     requestJSON.login_id = localStorage.getItem("login_id");
@@ -468,7 +573,6 @@ function display_subscriptions() {
             }
         });
 }
-
 
 // Display recipe lists that can be deleted from user.
 function display_delete_playlists () {
@@ -497,25 +601,6 @@ function display_delete_playlists () {
             }
             else if(object.error){
                 $("#deletelist_status").empty().append("Recipe lists could not be displayed.");
-            }
-        });
-}
-
-// Delete recipe list from user.
-function delete_playlist (recipe_playlist_id) {
-    $("#deletelist_status").empty();
-    var requestJSON = new Object();
-    requestJSON.recipe_playlist_id = recipe_playlist_id;
-    requestJSON.login_id = localStorage.getItem("login_id");
-    $.post("http://159.203.44.151:24200/delete_recipe_playlist", JSON.stringify(requestJSON))
-        .done(function(data) {
-            var object = JSON.parse(data);
-            if (JSON.parse(data).success) {
-                $("#"+recipe_playlist_id+"").empty();
-                $("#deletelist_status").empty().append("Recipe list deleted.");
-            }
-            else if(JSON.parse(data).error) {
-                $("#deletelist_status").empty().append("Could not delete recipe list.");
             }
         });
 }
@@ -602,8 +687,6 @@ function display_recipe_playlists() {
                                                     "<div class='caption'><h4><a onclick=view_recipe(\"" + object3.recipe_id + "\")>" + object3.recipe_name + "</a></h4>" +
                                                     "<p>by <a onclick=view_profile(\"" + object3.author_username + "\")>" + object3.author_username +"</a></p><p>";
                                                 for (k = 1; k <= 5; k++) {
-                                                    // rating = 0? rating = 1? rating = 3.5? rating = 3.7?
-                                                    // j = 1,2,3,4,5
                                                     if (object3.rating >= k) {
                                                         list += "<span class='glyphicon glyphicon-star' aria-hidden='true'></span>";
                                                     }
@@ -611,14 +694,12 @@ function display_recipe_playlists() {
                                                         if (object3.rating + .5 >= j + 1) {
                                                             list += "<span class='glyphicon glyphicon-star' aria-hidden='true'></span>";
                                                         }
-                                                    // check if you need whole star or half star
                                                         else {
                                                             list +="<span class='glyphicon glyphicon-star-empty' aria-hidden='true'></span>";
                                                         }
                                                     }
                                                 }
                                                 list += "</p><p><span class='glyphicon glyphicon-time' aria-hidden='true'></span>" + object3.prep_time + "</p></div></div></div>";              
-                                                //console.log(list);
                                                 $("#" + object2.recipe_playlist_id).append(list);
                                             });
 
@@ -637,6 +718,68 @@ function display_recipe_playlists() {
 
         });
 }
+
+// Display the delete recipe button on a recipe page
+function display_delete_button() {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_logged_in_username", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if (object.error) {
+                return "JSON Error";
+            }
+  
+            if (object) {
+                var requestJSON2 = new Object();
+                requestJSON2.recipe_id = localStorage.getItem("recipe_id");
+                $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON2))
+                    .done(function(data) {  
+                        var object2 = JSON.parse(data);
+                        if (object2.error) {
+                            console.log(object2.error);
+                            return;
+                        }  
+                        if(object2.author_username == object.username) {
+                            $("#delete_recipe_button").append("<button class=\"btn btn-primary\" type=\"button\" id=\"delete-button\" onclick=delete_recipe()>Delete Recipe</button>");
+                            return;
+                        }
+                    });
+            }
+        });
+}
+
+// Display recipe lists that can be deleted from user.
+function display_delete_playlists () {
+    var requestJSON = new Object();
+    requestJSON.login_id = localStorage.getItem("login_id");
+    $.post("http://159.203.44.151:24200/get_user_profile", JSON.stringify(requestJSON))
+        .done(function(data) {
+            var object = JSON.parse(data);
+            if(object){
+                // Get and display all of user's recipe lists.
+                for (var i = 0; i < object.recipe_playlists.length; i++) {
+                    var requestJSON = new Object();
+                    requestJSON.recipe_playlist_id = object.recipe_playlists[i];
+                    var playlist = object.recipe_playlists[i];
+                    $.post("http://159.203.44.151:24200/get_recipe_playlist", JSON.stringify(requestJSON))
+                        .done(function(data) {
+                            var recipe_playlist_name  = JSON.parse(data).recipe_playlist_name;
+                            if(recipe_playlist_name){
+                                $("#delete_div").append("<div class=\"form-group row\" id=\"" + playlist + "\"><div class=\"col-sm-offset-4 col-sm-8\">" + recipe_playlist_name + "  <button id=\"deletelist-button\" type=\"button\" class=\"btn btn-primary\" onclick=\"delete_playlist('"+ playlist +"')\">Delete List</button></div></div>");
+                            }   
+                            else if(recipe_playlist_name.error) {
+                                $("#deletelist_status").empty().append("Recipe lists could not be displayed.");
+                            }
+                        });
+                };
+            }
+            else if(object.error){
+                $("#deletelist_status").empty().append("Recipe lists could not be displayed.");
+            }
+        });
+}
+
 // Displays the intricate details of a profile
 function display_profile_detail() {
     var requestJSON = new Object();
@@ -707,7 +850,7 @@ function display_profile_detail() {
         });
 }
 
-// ---------Functions that call all the necessary helper functions to fill in a page-------
+// -------------------- Functions that call all the necessary helper functions to fill in a page ------------------
 // MAIN FUNCTION TO DISPLAY PROFILE PAGE
 function display_profile_page() {
     if (localStorage.getItem("login_id") == null) {
@@ -730,6 +873,7 @@ function display_recipe_page() {
     display_recipe_playlists_dropdown();
     //div_id, sort_type, number_of_recipes, page_number, search_query="",search_tags=[], similar_recipe="", recipes_by_username="", login_id=""
     display_recipe_search("related", "POPULAR_WEEK", 4, 1, "", [], localStorage.getItem("recipe_id"));
+    display_delete_button();
 }
 
 // MAIN FUNCTION TO DISPLAY INDEX PAGE
@@ -745,6 +889,11 @@ function display_index_page() {
     display_subscriptions();
 }
 
+// MAIN FUNCTION TO DISPLAY SETTINGS PAGE
+function display_setting_page () {
+    display_username();
+    display_delete_playlists();
+}
 // MAIN FUNCTION TO DISPLAY SEARCH PAGE
 function display_searchpage(sort_type="POPULAR_TODAY", tags=[]) {
     if (localStorage.getItem("login_id") == null) {
@@ -772,8 +921,9 @@ function display_searchpage(sort_type="POPULAR_TODAY", tags=[]) {
     display_recipe_search("searchresult", sort_type, 24, 1, search_query, tags);
 
 }
+// -----------------------------------------------------------------------------
 
-// ----------- Functions to ensure you are on the right page before you try to instantiate anything ------------
+// ----------- Functions to ensure you are on the right page before you try to instantiate/write anything ------------
 function view_search() {
     var current_search = $("#searchbar").val();
     localStorage.setItem("current_search", current_search);
