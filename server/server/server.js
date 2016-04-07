@@ -377,7 +377,11 @@ app.post('/get_recipes', function (req, res) {
                     if (loginID){
                         User.findOne({login_id: loginID}, function (err, user){
                             // Call the next function:
-                            getRecipeTagsAsync(searchQuery, searchTags, byUsername, listOfRecipeID.concat(user.fav_recipes), req, res);
+                            var favs = [];
+                            if (user != null && user != undefined){
+                                favs = user.fav_recipes;
+                            }
+                            getRecipeTagsAsync(searchQuery, searchTags, byUsername, listOfRecipeID.concat(favs), req, res);
                         });
                     } else { // LoginID not specified.
                         // Call the next function:
