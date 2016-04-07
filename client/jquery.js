@@ -891,6 +891,10 @@ function display_index_page() {
 
 // MAIN FUNCTION TO DISPLAY SETTINGS PAGE
 function display_setting_page () {
+    if (localStorage.getItem("login_id") == null) {
+        alert("Please log in before continuing to use Cookbook");
+        location.href="login.html";
+    }
     display_username();
     display_delete_playlists();
 }
