@@ -679,7 +679,8 @@ function display_recipe_playlists() {
                                         var requestJSON3 = new Object();
                                         requestJSON3.recipe_id = object2.recipes[j];
                                         $.post("http://159.203.44.151:24200/get_recipe_detail", JSON.stringify(requestJSON3))
-                                            .done(function(data) {                                                var object3 = JSON.parse(data);
+                                            .done(function(data) {
+                                                var object3 = JSON.parse(data);
                                                 var list = "";
                                                 list += 
                                                     "<div class='col-sm-6 col-md-3'><div class='thumbnail'>" +
