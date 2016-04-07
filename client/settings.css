@@ -59,12 +59,13 @@ h4 {
 	max-height: 70px;
 }
 
-#changepw-button, #changepic-button, #changebio-button {
+#changepw-button, #changepic-button, #changebio-button, #deletelist-button {
 	background-color: #e57100;
 	border-color: #d36800;
 }
 
-#changepw-button:active, #changepic-button:active, #changebio-button:active {
+#changepw-button:active, #changepic-button:active, #changebio-button:active,
+#deletelist-button:active {
 	background-color: #e57100;
 	border-color: #d36800;
 	background-image: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) );

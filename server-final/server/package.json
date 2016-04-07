@@ -1,0 +1,26 @@
+{
+  "name": "Cookbook-server",
+  "version": "1.0.0",
+  "description": "Cookbook server for csc309",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.13.4",
+    "body-parser": "^1.15.0",
+    "express-rate-limit": "^2.1.2",
+    "mongoose": "^4.4.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dlau011/309A4.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dlau011/309A4/issues"
+  }
+}
